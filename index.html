@@ -83,12 +83,14 @@
 
   .card {
     position: relative;
-    width: 100%; max-width: 460px;
+    width: 100%; max-width: 640px;
+    min-height: min(640px, calc(100svh - 120px));
+    display: flex; flex-direction: column; justify-content: center;
     background: var(--cream);
     border: 4px solid var(--ink);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 26px 22px 28px;
+    padding: 36px 36px 40px;
     text-align: center;
   }
   .card::before, .card::after {
@@ -113,11 +115,11 @@
     transform: rotate(-3deg);
   }
   h1, h2 { margin: 14px 0 6px; line-height: 1.35; }
-  h1 { font-size: 30px; }
-  h2 { font-size: 25px; }
-  .sub { margin: 4px 0 0; color: var(--ink-soft); font-size: 15px; line-height: 1.6; }
+  h1 { font-size: 36px; }
+  h2 { font-size: 31px; }
+  .sub { margin: 4px 0 0; color: var(--ink-soft); font-size: 16px; line-height: 1.6; }
 
-  .mascot { width: 190px; max-width: 70%; height: auto; margin: 6px auto 0; display: block; }
+  .mascot { width: 230px; max-width: 70%; height: auto; margin: 6px auto 0; display: block; }
   .mascot.bounce { animation: bounce 2.4s ease-in-out infinite; }
   @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
@@ -143,15 +145,61 @@
   .btn.big { font-size: 22px; padding: 14px 34px; }
 
   .yesno {
-    display: flex; gap: 18px; justify-content: center; align-items: center;
-    margin-top: 22px; min-height: 64px;
+    display: flex; gap: 28px; justify-content: center; align-items: center;
+    margin-top: 26px; min-height: 90px;
   }
-  .yesno .btn { min-width: 110px; }
+  .yesno .btn { min-width: 130px; font-size: 22px; padding: 14px 26px; }
+
+  /* 「是」：越逃越大顆、還會發光 */
+  #btnYes { scale: var(--grow, 1); transition: scale .35s cubic-bezier(.3, 1.6, .5, 1), background .2s; }
+  #btnYes.glow { animation: glow 1.1s ease-in-out infinite; }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 5px 0 var(--ink), 0 0 0 0 rgba(244, 93, 140, .55); }
+    50%      { box-shadow: 0 5px 0 var(--ink), 0 0 0 14px rgba(244, 93, 140, 0); }
+  }
+
+  /* 「否」：會在卡片裡亂跑 */
   #btnNo {
-    transition: left .25s cubic-bezier(.3, 1.5, .5, 1), top .25s cubic-bezier(.3, 1.5, .5, 1), transform .12s;
+    position: relative;
+    transition: left .32s cubic-bezier(.3, 1.5, .5, 1), top .32s cubic-bezier(.3, 1.5, .5, 1), background .2s, color .2s;
     z-index: 50;
+    white-space: nowrap;
   }
-  #btnNo.free { position: fixed; margin: 0; }
+  #btnNo.free { position: absolute; margin: 0; }
+  #btnNo.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes boing {
+    0%   { scale: 1.25 .7; rotate: -8deg; }
+    40%  { scale: .85 1.2; rotate: 6deg; }
+    70%  { scale: 1.08 .94; rotate: -3deg; }
+    100% { scale: 1; rotate: 0deg; }
+  }
+  #btnNo.tired { animation: tired 1.4s ease-in-out infinite; }
+  @keyframes tired { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; translate: 0 3px; } }
+  /* 嗆聲小泡泡 */
+  #btnNo::after {
+    content: attr(data-taunt);
+    position: absolute; left: 50%; bottom: calc(100% + 12px);
+    translate: -50% 0;
+    background: var(--ink); color: #fff;
+    font-size: 14px; padding: 5px 12px; border-radius: 12px;
+    white-space: nowrap; pointer-events: none;
+    opacity: 0;
+  }
+  #btnNo.talk::after { animation: taunt 1.3s ease-out; }
+  @keyframes taunt {
+    0% { opacity: 0; translate: -50% 8px; scale: .6; }
+    15%, 75% { opacity: 1; translate: -50% 0; scale: 1; }
+    100% { opacity: 0; translate: -50% -6px; }
+  }
+  /* 逃跑留下的煙 */
+  .puff {
+    position: absolute; z-index: 40; pointer-events: none;
+    font-size: 30px; translate: -50% -50%;
+    animation: puff .7s ease-out forwards;
+  }
+  @keyframes puff { from { opacity: 1; scale: .6; } to { opacity: 0; scale: 1.8; translate: -90% -80%; } }
+  .mascot.giggle { animation: giggle .5s ease-in-out; }
+  @keyframes giggle { 0%, 100% { rotate: 0deg; } 25% { rotate: -6deg; } 75% { rotate: 6deg; } }
 
   .options { display: grid; gap: 12px; margin-top: 20px; }
   .options .btn {
@@ -270,8 +318,16 @@
 
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 90; }
 
+  @media (max-width: 600px) {
+    main { padding: 18px 12px 28px; }
+    .card { padding: 30px 18px 32px; min-height: calc(100svh - 110px); }
+    h1 { font-size: 30px; } h2 { font-size: 26px; }
+    .mascot { width: 200px; }
+    .yesno { gap: 20px; margin-top: 30px; }
+    .yesno .btn { min-width: 112px; font-size: 21px; }
+  }
   @media (max-width: 380px) {
-    h1 { font-size: 26px; } h2 { font-size: 22px; }
+    h1 { font-size: 26px; } h2 { font-size: 23px; }
     .options .btn { font-size: 16px; }
     .invite .names { font-size: 28px; }
   }
@@ -567,57 +623,117 @@ $("#btnStart").addEventListener("click", () => go("s-q1"));
  * Q1：「否」按鈕會逃跑
  * ========================================================= */
 const btnNo = $("#btnNo");
-const noTexts = ["否", "抓不到～", "想都別想 😜", "再試試看呀", "放棄吧～", "按「是」比較快啦", "我跑超快 💨", "你是不是手滑？"];
-const q1Hints = ["", "咦？「否」怎麼跑掉了？🤔", "看來它不想被按 😂", "它真的很害羞…", "宇宙的意思是：選「是」✨"];
-let fleeCount = 0;
+const card = $(".card");
+const noTexts = ["否", "抓不到～", "想都別想 😜", "再試試看呀", "左邊！不對右邊！", "我跑超快 💨", "你是不是手滑？"];
+const taunts = ["嘿嘿～", "太慢了啦！", "略略略 😝", "這邊這邊～", "差一點點！", "哈哈哈哈", "你抓不到我的"];
+const q1Hints = ["", "咦？「否」怎麼跑掉了？🤔", "看來它不想被按 😂", "它真的很害羞…", "「是」好像越來越大顆了…", "宇宙的意思是：選「是」✨"];
+const TIRED_AT = 8;   // 碰到第幾次累到投降
+let fleeCount = 0, surrendered = false;
 
 function flee(px, py) {
+  if (surrendered) return;
+  const cr = card.getBoundingClientRect();
   const r = btnNo.getBoundingClientRect();
   if (!btnNo.classList.contains("free")) {
-    // 移到 body 底下，避免被有 transform 的父層影響 position:fixed
-    btnNo.style.left = r.left + "px";
-    btnNo.style.top = r.top + "px";
+    // 掛到卡片底下，在整張卡片範圍內跑
+    btnNo.style.left = r.left - cr.left + "px";
+    btnNo.style.top = r.top - cr.top + "px";
     btnNo.classList.add("free");
-    document.body.appendChild(btnNo);
+    card.appendChild(btnNo);
     btnNo.getBoundingClientRect(); // 先套用起點，transition 才會動
   }
-  const vw = window.innerWidth, vh = window.innerHeight, pad = 16;
-  const w = r.width + 30, h = r.height;  // 文字可能變長，預留空間
   if (px == null) { px = r.left + r.width / 2; py = r.top + r.height / 2; }
-  let x, y, tries = 0;
-  do {
-    x = pad + Math.random() * Math.max(1, vw - w - pad * 2);
-    y = pad + Math.random() * Math.max(1, vh - h - pad * 2);
-    tries++;
-  } while (Math.hypot(x + w / 2 - px, y + h / 2 - py) < Math.min(220, vw * 0.4) && tries < 40);
-  btnNo.style.left = x + "px";
-  btnNo.style.top = y + "px";
+
   fleeCount++;
-  btnNo.textContent = fleeCount < noTexts.length
-    ? noTexts[fleeCount]
-    : noTexts[1 + Math.floor(Math.random() * (noTexts.length - 1))];
+  if (fleeCount >= TIRED_AT) return giveUp();
+
+  puffAt(r.left + r.width / 2 - cr.left, r.top + r.height / 2 - cr.top);
+  btnNo.textContent = noTexts[Math.min(fleeCount, noTexts.length - 1)];
+  const w = btnNo.offsetWidth, h = btnNo.offsetHeight, pad = 14, top = 44; // 上方留空間給嗆聲泡泡
+  // 不要蓋住「是」、題目和標籤
+  const avoid = ["#btnYes", "#s-q1 h2", "#s-q1 .tag"].map(q => $(q).getBoundingClientRect());
+  const minDist = Math.min(170, cr.width * 0.38);
+  let best = null, bestDist = -1;
+  for (let i = 0; i < 60; i++) {
+    const x = pad + Math.random() * Math.max(1, cr.width - w - pad * 2);
+    const y = top + Math.random() * Math.max(1, cr.height - h - pad - top);
+    const cx = cr.left + x + w / 2, cy = cr.top + y + h / 2;
+    const hit = avoid.some(o => Math.abs(cx - (o.left + o.right) / 2) < (o.width + w) / 2 + 12
+                             && Math.abs(cy - (o.top + o.bottom) / 2) < (o.height + h) / 2 + 12);
+    if (hit) continue;
+    const dist = Math.hypot(cx - px, cy - py);
+    if (dist >= minDist) { best = [x, y]; break; }
+    if (dist > bestDist) { bestDist = dist; best = [x, y]; }
+  }
+  if (best) { btnNo.style.left = best[0] + "px"; btnNo.style.top = best[1] + "px"; }
+
+  btnNo.dataset.taunt = taunts[(fleeCount - 1) % taunts.length];
+  replay(btnNo, "boing");
+  replay(btnNo, "talk");
+  document.querySelectorAll("#s-q1 .mascot").forEach(m => replay(m, "giggle"));
+  if (navigator.vibrate) navigator.vibrate(18);
+
   $("#q1Hint").textContent = q1Hints[Math.min(fleeCount, q1Hints.length - 1)];
   // 「是」越來越大顆
-  $("#btnYes").style.transform = `scale(${Math.min(1 + fleeCount * 0.06, 1.45)})`;
+  const yes = $("#btnYes");
+  yes.style.setProperty("--grow", Math.min(1 + fleeCount * 0.07, 1.5));
+  if (fleeCount >= 3) yes.classList.add("glow");
 }
 
-// 滑鼠一碰到就跑
+// 跑累了：原地喘氣，再碰一下就變成「是」
+function giveUp() {
+  surrendered = true;
+  btnNo.textContent = "跑不動了… 😮‍💨";
+  btnNo.dataset.taunt = "好啦好啦…你贏了";
+  btnNo.classList.remove("boing");
+  btnNo.classList.add("tired");
+  replay(btnNo, "talk");
+  $("#q1Hint").textContent = "「否」好像累壞了，去戳戳它看看 👉";
+}
+
+function puffAt(x, y) {
+  const p = document.createElement("span");
+  p.className = "puff";
+  p.textContent = "💨";
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  card.appendChild(p);
+  setTimeout(() => p.remove(), 750);
+}
+
+function replay(el, cls) {
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+}
+
+// 滑鼠真的碰到才跑（不會還沒碰到就跑）
 btnNo.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") flee(e.clientX, e.clientY); });
-// 手機按下去的瞬間就跑
-btnNo.addEventListener("pointerdown", e => { e.preventDefault(); flee(e.clientX, e.clientY); });
-// 擋掉觸控後補發的 click，避免手機誤觸算「按到」
-btnNo.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
-// 滑鼠靠近一定距離也會先跑
-document.addEventListener("pointermove", e => {
-  if (current !== "s-q1" || e.pointerType !== "mouse") return;
-  const r = btnNo.getBoundingClientRect();
-  const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
-  const dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
-  if (Math.hypot(dx, dy) < 40) flee(e.clientX, e.clientY);
+// 手機手指按下去的瞬間跑
+btnNo.addEventListener("pointerdown", e => {
+  if (surrendered) return;
+  e.preventDefault();
+  flee(e.clientX, e.clientY);
 });
-// 萬一真的被按到（例如鍵盤 Enter）…還是算「是」
+// 擋掉觸控後補發的 click，避免手機誤觸算「按到」（投降後就放行）
+btnNo.addEventListener("touchstart", e => { if (!surrendered) e.preventDefault(); }, { passive: false });
+// 視窗大小改變時，把跑出卡片外的「否」拉回來
+addEventListener("resize", () => {
+  if (!btnNo.classList.contains("free")) return;
+  const maxX = card.clientWidth - btnNo.offsetWidth - 14, maxY = card.clientHeight - btnNo.offsetHeight - 14;
+  btnNo.style.left = Math.max(14, Math.min(parseFloat(btnNo.style.left), maxX)) + "px";
+  btnNo.style.top = Math.max(44, Math.min(parseFloat(btnNo.style.top), maxY)) + "px";
+});
 btnNo.addEventListener("click", e => {
   e.preventDefault();
+  if (surrendered) {
+    btnNo.classList.remove("tired");
+    btnNo.classList.add("primary");
+    btnNo.textContent = "好啦，是 💖";
+    say("🥹", "連「否」都被你感動到<br>自己變成「是」了！", 1900).then(() => answerQ1(true));
+    return;
+  }
+  // 萬一真的被按到（例如鍵盤 Enter）…還是算「是」
   say("🫢", "居然被你按到了！<br>但系統自動幫你改成「是」了 😆", 1900).then(() => answerQ1(true));
 });
 
@@ -627,7 +743,7 @@ let q1Done = false;
 async function answerQ1(viaNo) {
   if (q1Done) return;
   q1Done = true;
-  answers.q1 = viaNo ? "否（被系統自動修正為「是」）" : (fleeCount > 0 ? `是（在「否」逃跑 ${fleeCount} 次之後）` : "是，毫不猶豫");
+  answers.q1 = surrendered ? `是（「否」逃了 ${TIRED_AT - 1} 次後累到投降）` : viaNo ? "否（被系統自動修正為「是」）" : (fleeCount > 0 ? `是（在「否」逃跑 ${fleeCount} 次之後）` : "是，毫不猶豫");
   btnNo.remove();
   burst(60);
   if (!viaNo) await say("🥰", fleeCount > 2 ? "就知道你最後還是會選「是」！" : "耶！就知道你最好了！");
