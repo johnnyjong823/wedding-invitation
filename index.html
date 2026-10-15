@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>婚禮意願調查表 💌</title>
+<meta name="description" content="一份很重要（也有點不正經）的婚禮意願調查表，填完有驚喜！">
+<meta property="og:title" content="婚禮意願調查表 💌">
+<meta property="og:description" content="只有三題，填完有驚喜！">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#ff8fb1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&display=swap">
+<style>
+  /* ============ 色彩 ============ */
+  :root {
+    --pink-50:  #fff5f8;
+    --pink-100: #ffe4ec;
+    --pink-200: #ffc8d8;
+    --pink-300: #ffa3be;
+    --pink-400: #ff7fa5;
+    --pink-500: #f45d8c;
+    --pink-600: #d93f70;
+    --ink:      #6b2a43;
+    --ink-soft: #9a5470;
+    --cream:    #fffaf3;
+    --mint:     #b9ecd9;
+    --lemon:    #ffe9a6;
+    --shadow:   0 10px 0 #f3a9c0, 0 18px 40px rgba(217, 63, 112, .22);
+    --radius:   28px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  html { background: #ffe9f0; }
+  body {
+    font-family: "Huninn", "Zen Maru Gothic", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    color: var(--ink);
+    background: var(--pink-100);
+    background-image:
+      radial-gradient(circle at 15% 20%, #fff 0 2px, transparent 3px),
+      radial-gradient(circle at 75% 60%, #fff 0 2px, transparent 3px),
+      linear-gradient(160deg, #ffd6e4 0%, #ffe9f0 45%, #fff3e8 100%);
+    background-size: 90px 90px, 120px 120px, 100% 100%;
+    background-attachment: fixed;
+    min-height: 100%;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ============ 飄浮愛心背景 ============ */
+  .floaties { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .floaties span {
+    position: absolute; bottom: -60px;
+    font-size: var(--s, 24px);
+    opacity: .55;
+    animation: floatUp var(--d, 12s) linear infinite;
+    animation-delay: var(--delay, 0s);
+  }
+  @keyframes floatUp {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: .6; }
+    50%  { transform: translate(var(--sway, 30px), -55vh) rotate(15deg); }
+    100% { transform: translate(0, -115vh) rotate(-10deg); opacity: 0; }
+  }
+
+  /* ============ 版面 ============ */
+  main {
+    position: relative; z-index: 1;
+    min-height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 28px 16px 40px;
+  }
+
+  .progress {
+    display: flex; gap: 10px; margin-bottom: 18px;
+    font-size: 26px; transition: opacity .3s;
+  }
+  .progress i { font-style: normal; filter: grayscale(1) opacity(.35); transition: filter .4s, transform .4s; }
+  .progress i.on { filter: none; transform: scale(1.15); }
+
+  .card {
+    position: relative;
+    width: 100%; max-width: 460px;
+    background: var(--cream);
+    border: 4px solid var(--ink);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 26px 22px 28px;
+    text-align: center;
+  }
+  .card::before, .card::after {
+    content: ""; position: absolute; top: -16px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--pink-300); border: 4px solid var(--ink);
+  }
+  .card::before { left: 28px; }
+  .card::after  { right: 28px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: popIn .55s cubic-bezier(.2, 1.4, .4, 1) both; }
+  .screen.leaving { display: block; animation: popOut .35s ease-in both; }
+  @keyframes popIn  { from { opacity: 0; transform: scale(.85) translateY(20px) rotate(-2deg); } to { opacity: 1; transform: none; } }
+  @keyframes popOut { to   { opacity: 0; transform: scale(.9) translateY(-16px) rotate(2deg); } }
+
+  .tag {
+    display: inline-block;
+    background: var(--pink-400); color: #fff;
+    border: 3px solid var(--ink); border-radius: 999px;
+    padding: 4px 16px; font-size: 15px; font-weight: 700; letter-spacing: 1px;
+    transform: rotate(-3deg);
+  }
+  h1, h2 { margin: 14px 0 6px; line-height: 1.35; }
+  h1 { font-size: 30px; }
+  h2 { font-size: 25px; }
+  .sub { margin: 4px 0 0; color: var(--ink-soft); font-size: 15px; line-height: 1.6; }
+
+  .mascot { width: 190px; max-width: 70%; height: auto; margin: 6px auto 0; display: block; }
+  .mascot.bounce { animation: bounce 2.4s ease-in-out infinite; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+  /* ============ 按鈕 ============ */
+  .btn {
+    font: inherit; font-weight: 700; font-size: 19px;
+    color: var(--ink);
+    background: #fff;
+    border: 3px solid var(--ink); border-radius: 18px;
+    padding: 12px 22px;
+    box-shadow: 0 5px 0 var(--ink);
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s, background .2s;
+    touch-action: manipulation;
+    text-decoration: none;
+    user-select: none;
+  }
+  .btn:hover { background: var(--pink-50); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+  .btn:focus-visible { outline: 4px dashed var(--pink-500); outline-offset: 4px; }
+  .btn.primary { background: var(--pink-400); color: #fff; }
+  .btn.primary:hover { background: var(--pink-500); }
+  .btn.big { font-size: 22px; padding: 14px 34px; }
+
+  .yesno {
+    display: flex; gap: 18px; justify-content: center; align-items: center;
+    margin-top: 22px; min-height: 64px;
+  }
+  .yesno .btn { min-width: 110px; }
+  #btnNo {
+    transition: left .25s cubic-bezier(.3, 1.5, .5, 1), top .25s cubic-bezier(.3, 1.5, .5, 1), transform .12s;
+    z-index: 50;
+  }
+  #btnNo.free { position: fixed; margin: 0; }
+
+  .options { display: grid; gap: 12px; margin-top: 20px; }
+  .options .btn {
+    width: 100%; text-align: left;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 18px; padding: 12px 16px;
+  }
+  .options .btn .emo { font-size: 26px; width: 34px; text-align: center; flex: none; }
+  .options .btn.picked { background: var(--pink-300); color: #fff; }
+  #optShy { transition: transform .3s cubic-bezier(.3, 1.6, .5, 1), opacity .3s; transform-origin: center; }
+  .shake { animation: shake .4s; }
+  @keyframes shake {
+    0%, 100% { translate: 0; }
+    20% { translate: -8px; } 40% { translate: 8px; } 60% { translate: -5px; } 80% { translate: 5px; }
+  }
+
+  .hint { margin-top: 16px; font-size: 13px; color: var(--ink-soft); min-height: 1.4em; }
+
+  /* ============ 反應泡泡 ============ */
+  .bubble {
+    position: fixed; left: 50%; top: 50%;
+    z-index: 100;
+    background: #fff; color: var(--ink);
+    border: 4px solid var(--ink); border-radius: 26px;
+    box-shadow: 0 8px 0 var(--ink);
+    padding: 18px 26px; max-width: min(88vw, 380px);
+    text-align: center; font-size: 21px; font-weight: 700; line-height: 1.5;
+    pointer-events: none;
+    opacity: 0; transform: translate(-50%, -50%) scale(.6);
+    transition: opacity .2s, transform .35s cubic-bezier(.2, 1.6, .4, 1);
+  }
+  .bubble.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .bubble .big-emo { display: block; font-size: 48px; margin-bottom: 4px; }
+
+  /* ============ 報名表 ============ */
+  .rsvp { text-align: left; margin-top: 16px; display: grid; gap: 14px; }
+  .field { display: grid; gap: 6px; }
+  .field .lab { font-size: 15px; font-weight: 700; }
+  .field .lab em { color: var(--pink-500); font-style: normal; }
+  .field .tiny { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+  .rsvp input[type=text], .rsvp textarea {
+    font: inherit; font-size: 17px; color: var(--ink);
+    width: 100%; padding: 10px 14px;
+    background: #fff; border: 3px solid var(--ink); border-radius: 14px;
+    outline: none; resize: vertical;
+  }
+  .rsvp input[type=text]:focus, .rsvp textarea:focus { border-color: var(--pink-500); box-shadow: 0 0 0 4px var(--pink-100); }
+  .rsvp .invalid { border-color: var(--pink-600) !important; background: var(--pink-50) !important; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips label { cursor: pointer; }
+  .chips input { position: absolute; opacity: 0; pointer-events: none; }
+  .chips span {
+    display: inline-block; padding: 7px 14px;
+    background: #fff; border: 3px solid var(--ink); border-radius: 999px;
+    font-size: 15px; font-weight: 700;
+    transition: background .15s, color .15s;
+  }
+  .chips input:checked + span { background: var(--pink-400); color: #fff; }
+  .chips input:focus-visible + span { outline: 3px dashed var(--pink-500); outline-offset: 2px; }
+  .row2 { grid-template-columns: 1fr auto; align-items: center; }
+  #countFields { display: grid; gap: 10px; background: var(--pink-50); border-radius: 16px; padding: 12px 14px; }
+  #countFields.hidden { display: none; }
+  .stepper { display: flex; align-items: center; gap: 10px; }
+  .stepper .btn { width: 40px; height: 40px; padding: 0; font-size: 22px; border-radius: 12px; box-shadow: 0 3px 0 var(--ink); }
+  .stepper output { min-width: 28px; text-align: center; font-size: 20px; font-weight: 900; }
+  .form-err { margin: 0; min-height: 1.2em; color: var(--pink-600); font-size: 14px; font-weight: 700; text-align: center; }
+  #btnSubmit { justify-self: center; }
+  #btnSubmit:disabled { opacity: .6; cursor: wait; }
+
+  /* ============ 邀請函 ============ */
+  .invite { padding-top: 6px; }
+  .invite .names {
+    font-size: 34px; font-weight: 900; margin: 6px 0 2px; letter-spacing: 2px;
+    color: var(--pink-600);
+  }
+  .invite .names .amp { color: var(--ink); font-size: 26px; margin: 0 6px; }
+  .ribbon {
+    position: relative; display: inline-block;
+    background: var(--pink-400); color: #fff;
+    padding: 6px 26px; margin: 4px 0 14px;
+    border: 3px solid var(--ink); border-radius: 8px;
+    font-weight: 700; letter-spacing: 3px; font-size: 16px;
+  }
+  .details {
+    text-align: left;
+    background: #fff;
+    border: 3px dashed var(--pink-300);
+    border-radius: 20px;
+    padding: 14px 16px;
+    margin: 12px 0 16px;
+  }
+  .details .row { display: flex; gap: 12px; padding: 8px 0; align-items: flex-start; }
+  .details .row + .row { border-top: 2px dotted var(--pink-200); }
+  .details .ico { font-size: 22px; width: 30px; text-align: center; flex: none; }
+  .details .lab { font-size: 13px; color: var(--ink-soft); }
+  .details .val { font-size: 17px; font-weight: 700; line-height: 1.45; word-break: break-word; }
+  .details a { color: var(--pink-600); }
+
+  .thanks {
+    background: var(--pink-50);
+    border-radius: 18px;
+    padding: 14px 16px;
+    font-size: 16px; line-height: 1.8;
+    margin-bottom: 14px;
+  }
+  .my-answers {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.8;
+    margin: 0 0 16px; padding: 0; list-style: none;
+  }
+  .my-answers b { color: var(--ink); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .actions .btn { font-size: 16px; padding: 10px 18px; }
+  .sign { margin-top: 16px; font-size: 15px; color: var(--ink-soft); }
+
+  footer { position: relative; z-index: 1; text-align: center; font-size: 12px; color: var(--ink-soft); padding: 0 16px 20px; }
+
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 90; }
+
+  @media (max-width: 380px) {
+    h1 { font-size: 26px; } h2 { font-size: 22px; }
+    .options .btn { font-size: 16px; }
+    .invite .names { font-size: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    .floaties { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="floaties" aria-hidden="true" id="floaties"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<main>
+  <div class="progress" id="progress" aria-hidden="true"><i>💗</i><i>💗</i><i>💗</i></div>
+
+  <div class="card" role="main">
+
+    <!-- ========== 開場 ========== -->
+    <section class="screen active" id="s-intro">
+      <span class="tag">極度重要的問卷</span>
+      <h1>婚禮意願調查表</h1>
+      <p class="sub">只有三題，<br>請「誠實」作答（但答案其實早就決定了 😏）</p>
+      <svg class="mascot bounce" viewBox="0 0 240 200" role="img" aria-label="卡通新郎新娘">
+        <use href="#couple"/>
+      </svg>
+      <div style="margin-top:18px">
+        <button class="btn primary big" id="btnStart">開始作答 ✍️</button>
+      </div>
+    </section>
+
+    <!-- ========== 第一題 ========== -->
+    <section class="screen" id="s-q1">
+      <span class="tag">Q1 / 3</span>
+      <h2>你願意來參加<br>我們的婚禮嗎？</h2>
+      <p class="sub">（請慎重考慮）</p>
+      <svg class="mascot bounce" viewBox="0 0 240 200" aria-hidden="true"><use href="#couple"/></svg>
+      <div class="yesno" id="q1Btns">
+        <button class="btn primary" id="btnYes">是 💖</button>
+        <button class="btn" id="btnNo">否</button>
+      </div>
+      <p class="hint" id="q1Hint"></p>
+    </section>
+
+    <!-- ========== 第二題 ========== -->
+    <section class="screen" id="s-q2">
+      <span class="tag">Q2 / 3</span>
+      <h2>老實說，<br>新郎配得上新娘嗎？</h2>
+      <p class="sub">（匿名作答，新郎絕對不會看到 🤫）</p>
+      <div class="options">
+        <button class="btn" data-ans="天生一對"><span class="emo">💞</span>天生一對，鎖死！</button>
+        <button class="btn" data-ans="新郎上輩子拯救了銀河系"><span class="emo">🌌</span>新郎上輩子拯救了銀河系</button>
+        <button class="btn" data-ans="拒絕回答，怕被打"><span class="emo">🙊</span>我拒絕回答，我怕被打</button>
+        <button class="btn" id="optShy"><span class="emo">🤔</span>新娘的眼光有待加強</button>
+      </div>
+      <p class="hint" id="q2Hint"></p>
+    </section>
+
+    <!-- ========== 第三題 ========== -->
+    <section class="screen" id="s-q3">
+      <span class="tag">Q3 / 3</span>
+      <h2>婚宴當天，<br>你打算怎麼度過？</h2>
+      <p class="sub">（可以老實說）</p>
+      <div class="options">
+        <button class="btn" data-ans="吃到扶牆出去"><span class="emo">🍗</span>吃到扶著牆走出去</button>
+        <button class="btn" data-ans="哭得比新娘還慘"><span class="emo">😭</span>哭得比新娘還慘</button>
+        <button class="btn" data-ans="全力搶捧花"><span class="emo">💐</span>捧花是我的，誰都別跟我搶</button>
+        <button class="btn" data-ans="以上皆是"><span class="emo">✨</span>以上皆是</button>
+      </div>
+    </section>
+
+    <!-- ========== 報名資料 ========== -->
+    <section class="screen" id="s-form">
+      <span class="tag">最後一步 ✍️</span>
+      <h2>留下你的大名吧！</h2>
+      <p class="sub">我們要準備位子跟好吃的給你 🍰</p>
+      <form id="rsvpForm" class="rsvp" novalidate>
+        <label class="field">
+          <span class="lab">你的名字 <em>*</em></span>
+          <input type="text" name="name" id="fName" maxlength="40" placeholder="例如：王小明" autocomplete="name" required>
+        </label>
+
+        <div class="field">
+          <span class="lab">你是哪一邊的親友？</span>
+          <div class="chips">
+            <label><input type="radio" name="side" value="男方" checked><span>🤵 男方</span></label>
+            <label><input type="radio" name="side" value="女方"><span>👰 女方</span></label>
+            <label><input type="radio" name="side" value="兩邊都熟"><span>🤝 兩邊都熟</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="lab">出席狀態</span>
+          <div class="chips">
+            <label><input type="radio" name="attend" value="出席" checked><span>🙋 一定到！</span></label>
+            <label><input type="radio" name="attend" value="無法出席"><span>🥲 真的沒辦法</span></label>
+          </div>
+          <span class="tiny">（偷偷說：第一題的「否」雖然按不到，但真的不能來可以在這裡老實說）</span>
+        </div>
+
+        <div id="countFields">
+          <div class="field row2">
+            <span class="lab">出席人數（含自己）</span>
+            <div class="stepper" data-for="count" data-min="1" data-max="10">
+              <button type="button" class="btn" data-d="-1" aria-label="減少">−</button>
+              <output id="vcount">1</output>
+              <button type="button" class="btn" data-d="1" aria-label="增加">＋</button>
+            </div>
+          </div>
+          <div class="field row2">
+            <span class="lab">其中吃素 🥬</span>
+            <div class="stepper" data-for="veg" data-min="0" data-max="10">
+              <button type="button" class="btn" data-d="-1" aria-label="減少">−</button>
+              <output id="vveg">0</output>
+              <button type="button" class="btn" data-d="1" aria-label="增加">＋</button>
+            </div>
+          </div>
+          <div class="field row2">
+            <span class="lab">需要兒童椅 👶</span>
+            <div class="stepper" data-for="kids" data-min="0" data-max="10">
+              <button type="button" class="btn" data-d="-1" aria-label="減少">−</button>
+              <output id="vkids">0</output>
+              <button type="button" class="btn" data-d="1" aria-label="增加">＋</button>
+            </div>
+          </div>
+        </div>
+
+        <label class="field">
+          <span class="lab">想對新人說的話（選填）</span>
+          <textarea name="message" rows="3" maxlength="500" placeholder="祝福、提醒、爆料都可以 😆"></textarea>
+        </label>
+
+        <p class="form-err" id="formErr" role="alert"></p>
+        <button type="submit" class="btn primary big" id="btnSubmit">送出 💌</button>
+      </form>
+    </section>
+
+    <!-- ========== 邀請函 ========== -->
+    <section class="screen invite" id="s-invite">
+      <span class="tag">問卷完成 🎉</span>
+      <svg class="mascot" viewBox="0 0 240 200" aria-hidden="true" style="width:160px"><use href="#couple"/></svg>
+      <div class="names"><span id="vGroom"></span><span class="amp">&amp;</span><span id="vBride"></span></div>
+      <div class="ribbon">WEDDING INVITATION</div>
+      <p class="sub" style="font-size:16px;color:var(--ink)">我們要結婚了！<br>誠摯邀請您一同見證我們的幸福 💕</p>
+
+      <div class="details">
+        <div class="row"><span class="ico">📅</span><div><div class="lab">日期</div><div class="val" id="vDate"></div></div></div>
+        <div class="row"><span class="ico">⏰</span><div><div class="lab">時間</div><div class="val" id="vTime"></div></div></div>
+        <div class="row"><span class="ico">🏰</span><div><div class="lab">地點</div><div class="val" id="vVenue"></div></div></div>
+        <div class="row"><span class="ico">📍</span><div><div class="lab">地址</div><div class="val" id="vAddress"></div></div></div>
+      </div>
+
+      <div class="thanks" id="vThanks"></div>
+
+      <ul class="my-answers" id="myAnswers"></ul>
+
+      <div class="actions">
+        <a class="btn primary" id="btnMap" target="_blank" rel="noopener">🗺️ 查看地圖</a>
+        <button class="btn" id="btnAgain">🔁 再填一次</button>
+      </div>
+      <p class="sign" id="vSign"></p>
+    </section>
+  </div>
+</main>
+
+<footer>Made with 💗</footer>
+
+<div class="bubble" id="bubble" role="status" aria-live="polite"></div>
+
+<!-- ========== 卡通新郎新娘 SVG（共用） ========== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="couple" stroke="#6b2a43" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+      <!-- 地面陰影 -->
+      <ellipse cx="120" cy="188" rx="92" ry="9" fill="#f7b3c8" stroke="none"/>
+      <!-- ===== 新郎 ===== -->
+      <path d="M38 186 Q36 128 78 122 Q120 128 118 186 Z" fill="#4a4e69"/>
+      <path d="M70 124 L78 150 L86 124" fill="#fff"/>
+      <path d="M70 132 L78 138 L70 144 Z M86 132 L78 138 L86 144 Z" fill="#f45d8c"/>
+      <circle cx="78" cy="138" r="3" fill="#f45d8c"/>
+      <circle cx="78" cy="88" r="36" fill="#ffe0cc"/>
+      <path d="M44 82 Q46 48 80 50 Q112 52 112 80 Q100 66 82 70 Q64 64 44 82 Z" fill="#3b2a2a"/>
+      <circle cx="66" cy="92" r="4" fill="#6b2a43" stroke="none"/>
+      <circle cx="92" cy="92" r="4" fill="#6b2a43" stroke="none"/>
+      <ellipse cx="58" cy="104" rx="7" ry="4" fill="#ff9fbf" stroke="none" opacity=".8"/>
+      <ellipse cx="100" cy="104" rx="7" ry="4" fill="#ff9fbf" stroke="none" opacity=".8"/>
+      <path d="M72 104 Q79 111 86 104" fill="none"/>
+      <!-- ===== 新娘 ===== -->
+      <path d="M128 70 Q120 140 112 186 L208 186 Q196 140 186 70 Z" fill="#fff" opacity=".85"/>
+      <path d="M124 186 Q132 126 162 120 Q192 126 200 186 Z" fill="#fff"/>
+      <path d="M140 150 Q162 160 184 150" fill="none" stroke="#ffc8d8"/>
+      <path d="M134 170 Q162 182 190 170" fill="none" stroke="#ffc8d8"/>
+      <circle cx="162" cy="88" r="36" fill="#ffe0cc"/>
+      <path d="M126 92 Q122 50 162 50 Q202 50 198 92 Q196 70 176 64 Q170 76 150 74 Q132 74 126 92 Z" fill="#6d3b2a"/>
+      <!-- 頭紗花 -->
+      <circle cx="140" cy="56" r="7" fill="#ffa3be"/>
+      <circle cx="152" cy="50" r="7" fill="#ffe9a6"/>
+      <circle cx="164" cy="50" r="7" fill="#ffa3be"/>
+      <circle cx="150" cy="92" r="4" fill="#6b2a43" stroke="none"/>
+      <circle cx="176" cy="92" r="4" fill="#6b2a43" stroke="none"/>
+      <path d="M144 86 L140 83 M182 86 L186 83" fill="none" stroke-width="3"/>
+      <ellipse cx="142" cy="104" rx="7" ry="4" fill="#ff9fbf" stroke="none" opacity=".8"/>
+      <ellipse cx="184" cy="104" rx="7" ry="4" fill="#ff9fbf" stroke="none" opacity=".8"/>
+      <path d="M156 104 Q163 111 170 104" fill="none"/>
+      <!-- ===== 中間愛心 ===== -->
+      <path d="M120 150 C108 138 102 152 120 166 C138 152 132 138 120 150 Z" fill="#f45d8c"/>
+      <!-- 小星星 -->
+      <path d="M24 40 l4 9 9 1 -7 6 2 9 -8-5 -8 5 2-9 -7-6 9-1 Z" fill="#ffe9a6" stroke-width="3"/>
+      <path d="M214 28 l3 7 7 1 -5 5 1 7 -6-4 -6 4 1-7 -5-5 7-1 Z" fill="#ffe9a6" stroke-width="3"/>
+      <path d="M210 120 C204 114 200 122 210 130 C220 122 216 114 210 120 Z" fill="#ffa3be" stroke-width="3"/>
+    </g>
+  </defs>
+</svg>
+
+<script>
+/* =========================================================
+ * ✏️ 婚禮資訊：只要改這裡就好
+ * ========================================================= */
+const CONFIG = {
+  groom:   "新郎",                         // 新郎名字
+  bride:   "新娘",                         // 新娘名字
+  date:    "2027 年 ○ 月 ○ 日（星期○）",
+  time:    "中午 12:00 入席・12:30 開席",
+  venue:   "○○ 飯店 ○ 樓 ○○ 廳",
+  address: "○○市○○區○○路 ○ 號",
+  mapUrl:  "",                             // Google 地圖連結；留空會自動用地址搜尋
+  thanks:  "謝謝你這麼認真（？）地填完這份問卷！<br>你的每一份祝福，我們都滿滿收到了 🥹<br>期待那天與你相見，一起吃好吃的、一起留下美好回憶！",
+  thanksAbsent: "雖然這次不能到場，<br>但謝謝你認真填完問卷、送上滿滿的祝福 🥹<br>之後一定要找時間一起吃飯喔！",
+  sign:    "— 新郎 & 新娘 敬邀 💌",
+  // Google Apps Script 部署後的「網頁應用程式」網址（https://script.google.com/macros/s/.../exec）
+  sheetUrl: "",
+};
+
+/* ========================================================= */
+const $ = (s, el = document) => el.querySelector(s);
+const answers = {};
+
+/* ---------- 背景飄浮愛心 ---------- */
+(function makeFloaties() {
+  const box = $("#floaties");
+  const items = ["💗", "💕", "🌸", "💖", "✨", "🎀", "💞"];
+  const n = window.innerWidth < 600 ? 12 : 20;
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("span");
+    s.textContent = items[i % items.length];
+    s.style.left = Math.random() * 100 + "%";
+    s.style.setProperty("--s", 16 + Math.random() * 22 + "px");
+    s.style.setProperty("--d", 10 + Math.random() * 12 + "s");
+    s.style.setProperty("--delay", -Math.random() * 20 + "s");
+    s.style.setProperty("--sway", (Math.random() * 80 - 40) + "px");
+    box.appendChild(s);
+  }
+})();
+
+/* ---------- 畫面切換 ---------- */
+let current = "s-intro";
+function go(id) {
+  const from = document.getElementById(current);
+  const to = document.getElementById(id);
+  from.classList.remove("active");
+  from.classList.add("leaving");
+  setTimeout(() => {
+    from.classList.remove("leaving");
+    to.classList.add("active");
+    current = id;
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 330);
+}
+function updateProgress() {
+  const step = { "s-intro": 0, "s-q1": 0, "s-q2": 1, "s-q3": 2, "s-form": 3, "s-invite": 3 }[current];
+  document.querySelectorAll("#progress i").forEach((el, i) => el.classList.toggle("on", i < step));
+  $("#progress").style.opacity = current === "s-intro" ? 0 : 1;
+}
+updateProgress();
+
+/* ---------- 反應泡泡 ---------- */
+let bubbleTimer;
+function say(emoji, text, ms = 1500) {
+  const b = $("#bubble");
+  b.innerHTML = `<span class="big-emo">${emoji}</span>${text}`;
+  b.classList.add("show");
+  clearTimeout(bubbleTimer);
+  return new Promise(res => {
+    bubbleTimer = setTimeout(() => { b.classList.remove("show"); res(); }, ms);
+  });
+}
+
+$("#btnStart").addEventListener("click", () => go("s-q1"));
+
+/* =========================================================
+ * Q1：「否」按鈕會逃跑
+ * ========================================================= */
+const btnNo = $("#btnNo");
+const noTexts = ["否", "抓不到～", "想都別想 😜", "再試試看呀", "放棄吧～", "按「是」比較快啦", "我跑超快 💨", "你是不是手滑？"];
+const q1Hints = ["", "咦？「否」怎麼跑掉了？🤔", "看來它不想被按 😂", "它真的很害羞…", "宇宙的意思是：選「是」✨"];
+let fleeCount = 0;
+
+function flee(px, py) {
+  const r = btnNo.getBoundingClientRect();
+  if (!btnNo.classList.contains("free")) {
+    // 移到 body 底下，避免被有 transform 的父層影響 position:fixed
+    btnNo.style.left = r.left + "px";
+    btnNo.style.top = r.top + "px";
+    btnNo.classList.add("free");
+    document.body.appendChild(btnNo);
+    btnNo.getBoundingClientRect(); // 先套用起點，transition 才會動
+  }
+  const vw = window.innerWidth, vh = window.innerHeight, pad = 16;
+  const w = r.width + 30, h = r.height;  // 文字可能變長，預留空間
+  if (px == null) { px = r.left + r.width / 2; py = r.top + r.height / 2; }
+  let x, y, tries = 0;
+  do {
+    x = pad + Math.random() * Math.max(1, vw - w - pad * 2);
+    y = pad + Math.random() * Math.max(1, vh - h - pad * 2);
+    tries++;
+  } while (Math.hypot(x + w / 2 - px, y + h / 2 - py) < Math.min(220, vw * 0.4) && tries < 40);
+  btnNo.style.left = x + "px";
+  btnNo.style.top = y + "px";
+  fleeCount++;
+  btnNo.textContent = fleeCount < noTexts.length
+    ? noTexts[fleeCount]
+    : noTexts[1 + Math.floor(Math.random() * (noTexts.length - 1))];
+  $("#q1Hint").textContent = q1Hints[Math.min(fleeCount, q1Hints.length - 1)];
+  // 「是」越來越大顆
+  $("#btnYes").style.transform = `scale(${Math.min(1 + fleeCount * 0.06, 1.45)})`;
+}
+
+// 滑鼠一碰到就跑
+btnNo.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") flee(e.clientX, e.clientY); });
+// 手機按下去的瞬間就跑
+btnNo.addEventListener("pointerdown", e => { e.preventDefault(); flee(e.clientX, e.clientY); });
+// 擋掉觸控後補發的 click，避免手機誤觸算「按到」
+btnNo.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+// 滑鼠靠近一定距離也會先跑
+document.addEventListener("pointermove", e => {
+  if (current !== "s-q1" || e.pointerType !== "mouse") return;
+  const r = btnNo.getBoundingClientRect();
+  const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
+  const dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
+  if (Math.hypot(dx, dy) < 40) flee(e.clientX, e.clientY);
+});
+// 萬一真的被按到（例如鍵盤 Enter）…還是算「是」
+btnNo.addEventListener("click", e => {
+  e.preventDefault();
+  say("🫢", "居然被你按到了！<br>但系統自動幫你改成「是」了 😆", 1900).then(() => answerQ1(true));
+});
+
+$("#btnYes").addEventListener("click", () => answerQ1(false));
+
+let q1Done = false;
+async function answerQ1(viaNo) {
+  if (q1Done) return;
+  q1Done = true;
+  answers.q1 = viaNo ? "否（被系統自動修正為「是」）" : (fleeCount > 0 ? `是（在「否」逃跑 ${fleeCount} 次之後）` : "是，毫不猶豫");
+  btnNo.remove();
+  burst(60);
+  if (!viaNo) await say("🥰", fleeCount > 2 ? "就知道你最後還是會選「是」！" : "耶！就知道你最好了！");
+  go("s-q2");
+}
+
+/* =========================================================
+ * Q2：「新娘眼光有待加強」會越按越小
+ * ========================================================= */
+const shyTexts = [
+  ["🥲", "新郎看到了……<br>他默默去角落蹲著了"],
+  ["😤", "新娘說：<br>「我的眼光很好，謝謝。」"],
+  ["🥺", "新郎的眼神<br>正在默默看著你…"],
+  ["😂", "這個選項已經被<br>新郎檢舉下架了"],
+];
+let shyCount = 0;
+$("#optShy").addEventListener("click", function () {
+  const [emo, txt] = shyTexts[Math.min(shyCount, shyTexts.length - 1)];
+  shyCount++;
+  say(emo, txt, 1300);
+  this.classList.remove("shake"); void this.offsetWidth; this.classList.add("shake");
+  const scale = Math.max(1 - shyCount * 0.22, 0);
+  this.style.transform = `scale(${scale})`;
+  $("#q2Hint").textContent = shyCount >= 2 ? "（小聲：開玩笑的啦，新郎心臟很大顆 💪）" : "";
+  if (scale <= 0.15) {
+    this.style.opacity = 0;
+    setTimeout(() => (this.style.display = "none"), 300);
+  }
+});
+
+const q2Reacts = {
+  "天生一對": ["💞", "說得好！<br>這份認證我們收下了 ✨"],
+  "新郎上輩子拯救了銀河系": ["🦸", "新郎：<br>「沒錯，我很努力。」"],
+  "拒絕回答，怕被打": ["🙈", "你的沉默<br>已經說明了一切 😂"],
+};
+document.querySelectorAll("#s-q2 .options .btn[data-ans]").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    if (answers.q2) return;
+    answers.q2 = btn.dataset.ans;
+    btn.classList.add("picked");
+    burst(40);
+    const [e, t] = q2Reacts[answers.q2];
+    await say(e, t);
+    go("s-q3");
+  });
+});
+
+/* =========================================================
+ * Q3：怎麼選都對
+ * ========================================================= */
+const q3Reacts = {
+  "吃到扶牆出去": ["🍗", "沒問題！<br>菜色我們有認真挑 😋"],
+  "哭得比新娘還慘": ["😭", "衛生紙會幫你準備好的！"],
+  "全力搶捧花": ["💐", "捧花已經在幫你熱身了！<br>下一個就是你 😉"],
+  "以上皆是": ["🤣", "你就是全場最佳賓客！<br>我們等你！"],
+};
+document.querySelectorAll("#s-q3 .options .btn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    if (answers.q3) return;
+    answers.q3 = btn.dataset.ans;
+    btn.classList.add("picked");
+    const [e, t] = q3Reacts[answers.q3];
+    await say(e, t);
+    go("s-form");
+  });
+});
+
+/* =========================================================
+ * 邀請函
+ * ========================================================= */
+function showInvite() {
+  $("#vGroom").textContent = CONFIG.groom;
+  $("#vBride").textContent = CONFIG.bride;
+  $("#vDate").textContent = CONFIG.date;
+  $("#vTime").textContent = CONFIG.time;
+  $("#vVenue").textContent = CONFIG.venue;
+  $("#vAddress").textContent = CONFIG.address;
+  $("#vThanks").innerHTML = answers.attend === "無法出席" ? CONFIG.thanksAbsent : CONFIG.thanks;
+  $("#vSign").textContent = CONFIG.sign;
+  $("#btnMap").href = CONFIG.mapUrl ||
+    "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.venue + " " + CONFIG.address);
+
+  const list = $("#myAnswers");
+  list.innerHTML = "";
+  [["出席意願", answers.q1], ["新郎配得上嗎", answers.q2], ["當天計畫", answers.q3]].forEach(([k, v]) => {
+    const li = document.createElement("li");
+    li.innerHTML = `📝 ${k}：<b></b>`;
+    li.querySelector("b").textContent = v;
+    list.appendChild(li);
+  });
+
+  go("s-invite");
+  setTimeout(() => burst(180), 350);
+}
+
+/* =========================================================
+ * 報名表 → Google Sheet
+ * ========================================================= */
+const form = $("#rsvpForm");
+const nums = { count: 1, veg: 0, kids: 0 };
+
+document.querySelectorAll(".stepper").forEach(st => {
+  const key = st.dataset.for, min = +st.dataset.min, max = +st.dataset.max;
+  st.addEventListener("click", e => {
+    const b = e.target.closest("button[data-d]");
+    if (!b) return;
+    nums[key] = Math.min(max, Math.max(min, nums[key] + +b.dataset.d));
+    // 素食、兒童椅不超過出席人數
+    nums.veg = Math.min(nums.veg, nums.count);
+    nums.kids = Math.min(nums.kids, nums.count);
+    for (const k in nums) $("#v" + k).textContent = nums[k];
+  });
+});
+
+form.addEventListener("change", e => {
+  if (e.target.name === "attend") $("#countFields").classList.toggle("hidden", e.target.value !== "出席");
+});
+$("#fName").addEventListener("input", e => { e.target.classList.remove("invalid"); $("#formErr").textContent = ""; });
+
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  const fd = new FormData(form);
+  const name = (fd.get("name") || "").trim();
+  if (!name) {
+    $("#fName").classList.add("invalid");
+    $("#fName").focus();
+    $("#formErr").textContent = "要留名字我們才知道是誰來了啦 🥺";
+    return;
+  }
+  const attending = fd.get("attend") === "出席";
+  answers.attend = fd.get("attend");
+  const data = {
+    name,
+    side: fd.get("side"),
+    attend: fd.get("attend"),
+    count: attending ? nums.count : 0,
+    veg: attending ? nums.veg : 0,
+    kids: attending ? nums.kids : 0,
+    message: (fd.get("message") || "").trim(),
+    q1: answers.q1, q2: answers.q2, q3: answers.q3,
+  };
+
+  const btn = $("#btnSubmit");
+  btn.disabled = true;
+  btn.textContent = "傳送中… 🕊️";
+  $("#formErr").textContent = "";
+  try {
+    if (CONFIG.sheetUrl) {
+      // text/plain 不會觸發 CORS 預檢，Apps Script 才收得到
+      const res = await fetch(CONFIG.sheetUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "unknown");
+    } else {
+      console.warn("CONFIG.sheetUrl 尚未設定，資料沒有送出：", data);
+    }
+    showInvite();
+  } catch (err) {
+    console.error(err);
+    $("#formErr").textContent = "糟糕，送出失敗了 😵 請檢查網路後再按一次";
+    btn.disabled = false;
+    btn.textContent = "再送一次 💌";
+  }
+});
+
+$("#btnAgain").addEventListener("click", () => location.reload());
+
+/* =========================================================
+ * 彩帶
+ * ========================================================= */
+const cvs = $("#confetti"), ctx = cvs.getContext("2d");
+let parts = [], raf = null;
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function resize() { cvs.width = innerWidth * devicePixelRatio; cvs.height = innerHeight * devicePixelRatio; }
+addEventListener("resize", resize); resize();
+
+function burst(n) {
+  if (reduceMotion) return;
+  const colors = ["#ff7fa5", "#ffa3be", "#ffe9a6", "#b9ecd9", "#f45d8c", "#ffffff"];
+  for (let i = 0; i < n; i++) {
+    parts.push({
+      x: innerWidth / 2 + (Math.random() - .5) * 120,
+      y: innerHeight * .45,
+      vx: (Math.random() - .5) * 14,
+      vy: -Math.random() * 14 - 4,
+      r: 4 + Math.random() * 6,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - .5) * .3,
+      c: colors[i % colors.length],
+      heart: Math.random() < .3,
+      life: 0,
+    });
+  }
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+function drawHeart(r) {
+  ctx.beginPath();
+  ctx.moveTo(0, r * .35);
+  ctx.bezierCurveTo(-r * 1.2, -r * .5, -r * .4, -r * 1.3, 0, -r * .45);
+  ctx.bezierCurveTo(r * .4, -r * 1.3, r * 1.2, -r * .5, 0, r * .35);
+  ctx.fill();
+}
+function tick() {
+  const d = devicePixelRatio;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, cvs.width, cvs.height);
+  parts = parts.filter(p => p.y < innerHeight + 40 && p.life < 300);
+  for (const p of parts) {
+    p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+    ctx.setTransform(d, 0, 0, d, p.x * d, p.y * d);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = p.c;
+    if (p.heart) drawHeart(p.r * 1.4);
+    else ctx.fillRect(-p.r / 2, -p.r, p.r, p.r * 2);
+  }
+  raf = parts.length ? requestAnimationFrame(tick) : null;
+  if (!raf) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cvs.width, cvs.height); }
+}
+</script>
+</body>
+</html>
