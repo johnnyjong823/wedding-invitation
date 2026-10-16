@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>婚禮籌備清單</title>
+<meta name="description" content="2027/3/13 結婚登記、3/14 家宴的詳細籌備清單與完成進度">
+<style>
+:root{
+  --bg:#faf7f2; --card:#ffffff; --ink:#2b2420; --muted:#7a6e66; --line:#ebe3d9;
+  --accent:#b5485d; --accent-soft:#f6e4e7; --gold:#b08a4a; --done:#9a928b;
+  --ok:#3f8a5a; --ok-soft:#e3f1e7; --warn:#b7791f; --warn-soft:#fbf0dc; --bad:#c0392b; --bad-soft:#fbe4e1;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1c1917; --card:#26211e; --ink:#f1ebe4; --muted:#a8998d; --line:#3a332e;
+    --accent:#e07a8e; --accent-soft:#3b2529; --gold:#d4b071; --done:#6f655d;
+    --ok:#6cc08b; --ok-soft:#203126; --warn:#e3a94f; --warn-soft:#3a2f1c; --bad:#f07b6e; --bad-soft:#3d2220;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1c1917; --card:#26211e; --ink:#f1ebe4; --muted:#a8998d; --line:#3a332e;
+  --accent:#e07a8e; --accent-soft:#3b2529; --gold:#d4b071; --done:#6f655d;
+  --ok:#6cc08b; --ok-soft:#203126; --warn:#e3a94f; --warn-soft:#3a2f1c; --bad:#f07b6e; --bad-soft:#3d2220;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.6}
+.wrap{max-width:900px;margin:0 auto;padding:28px 16px 64px}
+header{text-align:center;margin-bottom:20px}
+.kicker{color:var(--gold);letter-spacing:.3em;font-size:13px}
+h1{font-size:28px;margin:4px 0 12px}
+.dates{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.date{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 16px}
+.date b{color:var(--accent)} .date span{color:var(--muted);font-size:14px;margin-left:6px}
+.countdown{color:var(--muted);margin-top:10px}
+.countdown strong{color:var(--accent);font-size:20px}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center;cursor:pointer}
+.stat b{display:block;font-size:24px}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.bad b{color:var(--bad)} .stat.warn b{color:var(--warn)} .stat.ok b{color:var(--ok)}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+.note{background:var(--accent-soft);border-radius:12px;padding:10px 14px;font-size:14px;margin:14px 0}
+.toolbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line);margin-bottom:16px}
+.chip{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:5px 14px;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.toolbar select,.toolbar input{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:5px 12px}
+.toolbar input{flex:1;min-width:120px}
+
+.stage{margin-bottom:24px}
+.stage-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.stage-head h2{font-size:18px;margin:0}
+.stage-head .when{color:var(--muted);font-size:13px}
+.stage-head .sp{font-size:13px;color:var(--muted);white-space:nowrap}
+.stage.key h2{color:var(--accent)}
+.list{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.item{border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.row{display:flex;gap:10px;align-items:flex-start;padding:10px 14px}
+.row input[type=checkbox]{margin-top:4px;width:18px;height:18px;accent-color:var(--accent);flex:none;cursor:pointer}
+.main{flex:1;min-width:0;cursor:pointer}
+.title{font-weight:600}
+.item.done .title{color:var(--done);text-decoration:line-through}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;font-size:12px}
+.tag{border-radius:99px;padding:1px 8px;background:var(--line);color:var(--muted)}
+.tag.bad{background:var(--bad-soft);color:var(--bad)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.opt{background:transparent;border:1px dashed var(--line)}
+.owner{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:2px 4px;flex:none}
+.arrow{color:var(--muted);font-size:12px;flex:none;margin-top:4px;transition:transform .2s}
+.item.open .arrow{transform:rotate(90deg)}
+.detail{display:none;padding:0 14px 12px 42px}
+.item.open .detail{display:block}
+.sub{display:flex;gap:8px;align-items:flex-start;padding:3px 0;font-size:14px;cursor:pointer}
+.sub input{margin-top:4px;accent-color:var(--accent)}
+.sub.done span{color:var(--done);text-decoration:line-through}
+.tip{font-size:13px;color:var(--muted);background:var(--bg);border-radius:8px;padding:6px 10px;margin:8px 0}
+textarea{width:100%;font:inherit;font-size:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 10px;min-height:38px;resize:vertical}
+.empty{padding:14px;color:var(--muted);font-size:14px;text-align:center}
+
+.tools{display:flex;gap:8px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:16px}
+@media print{
+  .toolbar,.tools,.owner,.arrow{display:none}
+  body{background:#fff}
+  .detail{display:block!important}
+  .stage{break-inside:avoid}
+  textarea{border:0;padding:0;min-height:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">WEDDING CHECKLIST</div>
+    <h1>婚禮籌備清單</h1>
+    <div class="dates">
+      <div class="date"><b>2027/3/13（六）</b><span>結婚登記</span></div>
+      <div class="date"><b>2027/3/14（日）</b><span>家宴</span></div>
+    </div>
+    <div class="countdown" id="countdown"></div>
+  </header>
+
+  <div class="stats">
+    <div class="stat ok" data-go="done"><b id="stDone">0</b><span>已完成</span></div>
+    <div class="stat" data-go="todo"><b id="stTodo">0</b><span>未完成</span></div>
+    <div class="stat bad" data-go="overdue"><b id="stOver">0</b><span>已逾期</span></div>
+    <div class="stat warn" data-go="soon"><b id="stSoon">0</b><span>14 天內到期</span></div>
+  </div>
+  <div class="bar"><i id="barFill"></i></div>
+
+  <div class="note">
+    ⚠️ <b>2027 春節是 2/6（六）</b>，1 月底到 2 月中很多廠商會休假或已經滿檔，需要訂做、印刷的東西請在 <b>1 月中前</b>定案。<br>
+    點任一項可展開<b>細項、提醒、備註</b>；細項全部勾完，該項會自動完成。
+  </div>
+
+  <div class="toolbar">
+    <button class="chip on" data-f="all">全部</button>
+    <button class="chip" data-f="todo">未完成</button>
+    <button class="chip" data-f="done">已完成</button>
+    <button class="chip" data-f="overdue">已逾期</button>
+    <button class="chip" data-f="soon">即將到期</button>
+    <select id="ownerFilter"><option value="">所有負責人</option></select>
+    <input id="search" type="search" placeholder="搜尋…">
+  </div>
+
+  <div id="stages"></div>
+
+  <div class="tools">
+    <button class="chip" id="expandBtn">全部展開</button>
+    <button class="chip" id="printBtn">列印</button>
+    <button class="chip" id="exportBtn">匯出進度</button>
+    <button class="chip" id="importBtn">匯入進度</button>
+    <button class="chip" id="resetBtn">清除全部勾選</button>
+    <button class="chip" id="themeBtn">切換深淺色</button>
+    <input type="file" id="importFile" accept=".json" hidden>
+  </div>
+  <footer>勾選紀錄只存在你自己的瀏覽器裡。要跟另一半同步，可以先「匯出進度」，再把檔案傳給對方「匯入」。</footer>
+</div>
+
+<script>
+var OWNERS=['未指定','新郎','新娘','兩人','雙方家長','親友'];
+
+/* due：截止日（YYYY-MM-DD）；opt：視需要；sub：細項；tip：提醒 */
+var STAGES=[
+{id:'s1',name:'階段一｜定大方向',when:'2026/10 – 11 月',items:[
+  {id:'parents',t:'雙方家長見面、討論家宴',due:'2026-11-01',sub:['家宴規模與桌數上限','預算怎麼分擔','是否保留傳統習俗（提親、文定、迎娶、歸寧）','賓客邀請範圍（同事、朋友要不要邀）']},
+  {id:'budget',t:'訂出總預算與分項上限',due:'2026-11-08',sub:['餐費（桌數 × 每桌價格 + 服務費）','禮服、西裝、新秘','攝影 / 錄影','婚戒','喜餅與婚禮小物','印刷與佈置','預備金（建議總額的 10%）']},
+  {id:'guests',t:'初擬賓客名單、估算桌數',due:'2026-11-15',sub:['男方親友','女方親友','共同朋友','同事','估算桌數（含 1 桌預備）']},
+  {id:'venue',t:'家宴餐廳訂位',due:'2026-11-30',sub:['列出 3 家候選餐廳','確認 3/14 中午 / 晚上檔期','確認桌數上下限與每桌價格','確認服務費、開瓶費、低消','確認包廂、音響、投影、停車','簽約、付訂金','合約拍照存檔'],tip:'3/14 週日是熱門日，建議越早訂越好。'},
+  {id:'registrar',t:'決定在哪間戶政事務所登記',due:'2026-11-30',sub:['選定戶所','打電話問 3/13（六）是否受理結婚登記','問清楚預約方式與預約開放日期'],tip:'結婚登記可以跨區辦理。戶所平常週六不上班，熱門日期有些會加開或採預約制，一定要事先問清楚。'},
+  {id:'custom',t:'安排傳統習俗日期（提親 / 文定等）',due:'2026-12-15',opt:true,sub:['決定要辦哪些儀式','排定日期','準備聘禮、禮品']}
+]},
+{id:'s2',name:'階段二｜預訂廠商',when:'2026/11 – 12 月',items:[
+  {id:'photo',t:'攝影 / 錄影師',due:'2026-12-15',sub:['看作品集、比較 2–3 位','確認 3/13、3/14 兩天的時數與報價','確認交件時間與張數','簽約、付訂金']},
+  {id:'makeup',t:'新娘秘書',due:'2026-12-15',sub:['看作品','確認兩天各要幾個造型','確認到府還是到場、交通費','預約試妝日期','簽約、付訂金']},
+  {id:'dress',t:'禮服 / 西裝',due:'2026-12-31',sub:['決定租還是買','試穿','確認修改與取件日期','配件：鞋子、頭飾、領帶、袖扣']},
+  {id:'ring',t:'婚戒',due:'2026-12-31',sub:['量戒圍','挑款式','決定刻字內容','下訂、付款','記下取件日期'],tip:'訂製通常要 4–8 週，春節前要下訂。'},
+  {id:'cake',t:'喜餅',due:'2026-12-31',sub:['試吃 2–3 家','確認盒數','確認交貨日期與地點','下訂']},
+  {id:'witness',t:'找好 2 位結婚證人',due:'2026-12-31',sub:['邀請證人 A','邀請證人 B','確認兩位能在書約上親筆簽名'],tip:'證人需年滿 18 歲。'},
+  {id:'shoot',t:'婚紗照 / 登記照',due:'2026-12-31',opt:true,sub:['決定拍不拍、在哪拍','預約拍攝日期','挑片、選相本']}
+]},
+{id:'s3',name:'階段三｜邀請與細節',when:'2026/12 – 2027/1 月中（春節前完成）',items:[
+  {id:'invite',t:'線上邀請函 / 出席意願調查',due:'2026-12-20',sub:['製作表單','透過 LINE 官方帳號或私訊發送','設定回覆截止日（建議 1/31）','收集葷素、兒童椅、停車需求']},
+  {id:'print',t:'紙本喜帖',due:'2027-01-10',opt:true,sub:['設計','校稿（名字、日期、地址）','印刷','寄送 / 親送長輩']},
+  {id:'menu',t:'試菜、確認菜單',due:'2027-01-15',sub:['預約試菜','確認菜色與素食桌','確認酒水（餐廳提供或自帶）','蛋糕：餐廳提供或外訂']},
+  {id:'gift',t:'婚禮小物 / 回禮 / 謝卡',due:'2027-01-15',sub:['決定品項與數量','下訂','確認到貨日期']},
+  {id:'decor',t:'場地佈置',due:'2027-01-15',sub:['迎賓區','照片牆 / 海報','桌卡、座位卡','花藝']},
+  {id:'video',t:'播放影片 / 照片輪播',due:'2027-01-31',sub:['收集兩人成長照','收集交往照片','剪輯','到餐廳測試播放格式']}
+]},
+{id:'s4',name:'階段四｜春節前後確認',when:'2027/1 月下旬 – 2 月',items:[
+  {id:'headcount',t:'確定最終桌數',due:'2027-02-14',sub:['提醒還沒回覆的人','統計出席人數','通知餐廳最終桌數']},
+  {id:'leave',t:'向公司請婚假',due:'2027-02-20',sub:['確認公司婚假規定','送出請假單','交接工作'],tip:'勞工婚假 8 天，可在結婚前 10 天到婚後 3 個月內請完（依公司規定）。'},
+  {id:'seat',t:'排座位表',due:'2027-02-28',sub:['分桌','長輩桌安排在主桌附近','印出座位表給招待人員']},
+  {id:'flow',t:'家宴流程表',due:'2027-02-28',sub:['時間軸（入場、開席、致詞、敬酒、切蛋糕、送客）','確定主持人','確定致詞人並先溝通內容','音樂清單']},
+  {id:'helpers',t:'分配當天工作人員',due:'2027-02-28',sub:['收禮（雙方各 1 人）','招待、帶位','照顧長輩','物品與禮金保管']},
+  {id:'transport',t:'長輩接送與停車',due:'2027-02-28',sub:['列出需要接送的長輩','安排司機','提供停車資訊給賓客']}
+]},
+{id:'s5',name:'階段五｜登記與家宴前置',when:'2027/3/1 – 3/12',items:[
+  {id:'booking',t:'完成戶所預約',due:'2027-03-01',sub:['預約 3/13 登記時段','記下預約編號 / 時間']},
+  {id:'contract',t:'結婚書約填寫完成',due:'2027-03-06',sub:['向戶所索取或上網下載','雙方親筆簽名','2 位證人親筆簽名','核對姓名、身分證字號跟證件一致']},
+  {id:'docs',t:'登記證件準備齊全',due:'2027-03-12',sub:['雙方身分證','雙方印章','戶口名簿','近 2 年 2 吋照片各 1 張（換身分證用）','換證規費']},
+  {id:'trial',t:'最終試穿、新秘試妝',due:'2027-03-06',sub:['禮服 / 西裝試穿','新秘試妝','確認當天時間表']},
+  {id:'pickup',t:'取件',due:'2027-03-10',sub:['婚戒','禮服 / 西裝','喜餅確認送達時間','婚禮小物']},
+  {id:'confirm',t:'跟所有廠商做最後確認',due:'2027-03-10',sub:['餐廳（桌數、時間、設備）','攝影','新秘','喜餅','工作人員與主持人']},
+  {id:'money',t:'尾款與紅包',due:'2027-03-12',sub:['廠商尾款分好信封','準備紅包簿與筆','準備給工作人員的紅包']},
+  {id:'pack',t:'家宴物品打包',due:'2027-03-12',sub:['佈置用品','小物、喜糖','蛋糕刀','影片隨身碟（多備一份）','座位表']}
+]},
+{id:'d1',name:'3/13（六）結婚登記 💍',when:'登記當天',key:true,items:[
+  {id:'d1-check',t:'出門前再檢查一次證件',due:'2027-03-13',sub:['身分證 ×2','印章 ×2','戶口名簿','2 吋照片 ×2','結婚書約','規費']},
+  {id:'d1-reg',t:'到戶政事務所辦理結婚登記',due:'2027-03-13'},
+  {id:'d1-id',t:'換新身分證、更新戶口名簿',due:'2027-03-13'},
+  {id:'d1-photo',t:'登記紀念照',due:'2027-03-13'},
+  {id:'d1-load',t:'晚上把家宴物品放上車',due:'2027-03-13'}
+]},
+{id:'d2',name:'3/14（日）家宴 🎉',when:'家宴當天',key:true,items:[
+  {id:'d2-makeup',t:'新秘化妝、更衣',due:'2027-03-14'},
+  {id:'d2-setup',t:'開席前 2 小時到場佈置',due:'2027-03-14',sub:['迎賓區','座位卡','影片、音響測試']},
+  {id:'d2-greet',t:'迎賓、收禮',due:'2027-03-14'},
+  {id:'d2-flow',t:'依流程進行：致詞、敬酒、切蛋糕',due:'2027-03-14'},
+  {id:'d2-send',t:'送客、發喜糖小物',due:'2027-03-14'},
+  {id:'d2-pay',t:'結清尾款、點清禮金',due:'2027-03-14',sub:['餐廳尾款','廠商尾款','禮金點清並交由專人保管']}
+]},
+{id:'after',name:'婚後待辦',when:'3/15 之後',items:[
+  {id:'thanks',t:'感謝親友（謝卡 / 訊息）',due:'2027-03-31'},
+  {id:'company',t:'交結婚證明給公司',due:'2027-03-31',sub:['婚假證明','申請結婚補助（如有）']},
+  {id:'bank',t:'更新銀行、保險資料',due:'2027-04-30',sub:['保險受益人','緊急聯絡人','銀行戶籍地址（如有變更）']},
+  {id:'nhi',t:'健保眷屬加保',due:'2027-04-30',opt:true},
+  {id:'album',t:'挑照片、整理影片',due:'2027-05-31'},
+  {id:'tax',t:'報稅：夫妻須合併申報',due:'2028-05-31',tip:'結婚當年度起合併申報，薪資所得可以選擇分開計稅。'}
+]}
+];
+
+var KEY='wedding-checklist-2027-v2';
+var S={done:{},sub:{},owner:{},note:{}};
+try{var raw=localStorage.getItem(KEY); if(raw){var p=JSON.parse(raw); for(var k in S) if(p[k]) S[k]=p[k];}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+var filter='all', ownerF='', query='', openSet={};
+var today=new Date(); today.setHours(0,0,0,0);
+function days(d){var x=new Date(d+'T00:00:00'); return Math.round((x-today)/86400000);}
+function fmt(d){var p=d.split('-'); return (+p[1])+'/'+(+p[2]);}
+function status(it){
+  if(S.done[it.id]) return 'done';
+  var n=days(it.due); if(n<0) return 'overdue'; if(n<=14) return 'soon'; return 'todo';
+}
+function subDone(it){return (it.sub||[]).filter(function(_,i){return S.sub[it.id+'_'+i]}).length;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+function match(it){
+  var st=status(it);
+  if(filter==='done'&&st!=='done') return false;
+  if(filter==='todo'&&st==='done') return false;
+  if(filter==='overdue'&&st!=='overdue') return false;
+  if(filter==='soon'&&st!=='soon') return false;
+  if(ownerF&&(S.owner[it.id]||'未指定')!==ownerF) return false;
+  if(query){var hay=(it.t+' '+(it.sub||[]).join(' ')+' '+(it.tip||'')+' '+(S.note[it.id]||'')).toLowerCase(); if(hay.indexOf(query)<0) return false;}
+  return true;
+}
+
+function render(){
+  var html='';
+  STAGES.forEach(function(sg){
+    var total=sg.items.length, done=sg.items.filter(function(i){return S.done[i.id]}).length;
+    var shown=sg.items.filter(match);
+    if(!shown.length&&filter!=='all') return;
+    html+='<div class="stage'+(sg.key?' key':'')+'"><div class="stage-head"><div><h2>'+sg.name+'</h2><div class="when">'+sg.when+'</div></div><div class="sp">'+done+' / '+total+' 完成</div></div><div class="list">';
+    if(!shown.length) html+='<div class="empty">沒有符合的項目</div>';
+    shown.forEach(function(it){
+      var st=status(it), n=days(it.due), sd=subDone(it), sl=(it.sub||[]).length;
+      var dueTag = st==='done'?'<span class="tag ok">✓ 已完成</span>'
+        : st==='overdue'?'<span class="tag bad">逾期 '+(-n)+' 天・'+fmt(it.due)+'</span>'
+        : st==='soon'?'<span class="tag warn">'+(n===0?'今天到期':'剩 '+n+' 天')+'・'+fmt(it.due)+'</span>'
+        : '<span class="tag">截止 '+fmt(it.due)+'</span>';
+      var own=S.owner[it.id]||'未指定';
+      html+='<div class="item'+(st==='done'?' done':'')+(openSet[it.id]?' open':'')+'" data-id="'+it.id+'">'
+        +'<div class="row"><input type="checkbox" class="ck"'+(S.done[it.id]?' checked':'')+' aria-label="完成">'
+        +'<div class="main"><div class="title">'+esc(it.t)+'</div><div class="meta">'+dueTag
+        +(sl?'<span class="tag">細項 '+sd+'/'+sl+'</span>':'')
+        +(it.opt?'<span class="tag opt">視需要</span>':'')
+        +(S.note[it.id]?'<span class="tag">📝 有備註</span>':'')+'</div></div>'
+        +'<select class="owner" title="負責人">'+OWNERS.map(function(o){return '<option'+(o===own?' selected':'')+'>'+o+'</option>'}).join('')+'</select>'
+        +'<span class="arrow">▶</span></div><div class="detail">';
+      (it.sub||[]).forEach(function(s,i){
+        var on=S.sub[it.id+'_'+i];
+        html+='<label class="sub'+(on?' done':'')+'"><input type="checkbox" class="sk" data-i="'+i+'"'+(on?' checked':'')+'><span>'+esc(s)+'</span></label>';
+      });
+      if(it.tip) html+='<div class="tip">💡 '+esc(it.tip)+'</div>';
+      html+='<textarea class="nt" placeholder="備註（廠商電話、金額、已付訂金…）">'+esc(S.note[it.id]||'')+'</textarea></div></div>';
+    });
+    html+='</div></div>';
+  });
+  if(!html) html='<div class="list"><div class="empty">沒有符合的項目 🎉</div></div>';
+  document.getElementById('stages').innerHTML=html;
+  stats();
+}
+
+function allItems(){return STAGES.reduce(function(a,s){return a.concat(s.items)},[]);}
+function stats(){
+  var all=allItems(), c={done:0,todo:0,overdue:0,soon:0};
+  all.forEach(function(it){var st=status(it); c[st]++; });
+  document.getElementById('stDone').textContent=c.done;
+  document.getElementById('stTodo').textContent=all.length-c.done;
+  document.getElementById('stOver').textContent=c.overdue;
+  document.getElementById('stSoon').textContent=c.soon;
+  document.getElementById('barFill').style.width=(c.done/all.length*100)+'%';
+}
+function find(id){return allItems().filter(function(i){return i.id===id})[0];}
+
+var box=document.getElementById('stages');
+box.addEventListener('change',function(e){
+  var el=e.target, itemEl=el.closest('.item'); if(!itemEl) return;
+  var it=find(itemEl.dataset.id);
+  if(el.classList.contains('ck')){
+    S.done[it.id]=el.checked;
+    (it.sub||[]).forEach(function(_,i){S.sub[it.id+'_'+i]=el.checked});
+  }else if(el.classList.contains('sk')){
+    S.sub[it.id+'_'+el.dataset.i]=el.checked;
+    S.done[it.id]=subDone(it)===it.sub.length;
+    openSet[it.id]=true;
+  }else if(el.classList.contains('owner')){
+    S.owner[it.id]=el.value;
+  }else return;
+  save(); render();
+});
+box.addEventListener('input',function(e){
+  if(!e.target.classList.contains('nt')) return;
+  var id=e.target.closest('.item').dataset.id;
+  S.note[id]=e.target.value; save();
+});
+box.addEventListener('focusout',function(e){ if(e.target.classList.contains('nt')) render(); });
+box.addEventListener('click',function(e){
+  if(!e.target.closest('.main')&&!e.target.classList.contains('arrow')) return;
+  var itemEl=e.target.closest('.item'); var id=itemEl.dataset.id;
+  openSet[id]=!openSet[id]; itemEl.classList.toggle('open',!!openSet[id]);
+});
+
+function setFilter(f){
+  filter=f;
+  [].forEach.call(document.querySelectorAll('[data-f]'),function(b){b.classList.toggle('on',b.dataset.f===f)});
+  render();
+}
+[].forEach.call(document.querySelectorAll('[data-f]'),function(b){b.onclick=function(){setFilter(b.dataset.f)}});
+[].forEach.call(document.querySelectorAll('[data-go]'),function(b){b.onclick=function(){setFilter(b.dataset.go)}});
+var of=document.getElementById('ownerFilter');
+OWNERS.forEach(function(o){var op=document.createElement('option'); op.textContent=o; of.appendChild(op);});
+of.onchange=function(){ownerF=of.value; render();};
+document.getElementById('search').oninput=function(e){query=e.target.value.trim().toLowerCase(); render();};
+
+var allOpen=false;
+document.getElementById('expandBtn').onclick=function(){
+  allOpen=!allOpen; allItems().forEach(function(i){openSet[i.id]=allOpen});
+  this.textContent=allOpen?'全部收合':'全部展開'; render();
+};
+document.getElementById('printBtn').onclick=function(){window.print()};
+document.getElementById('resetBtn').onclick=function(){
+  if(!confirm('確定要清除所有勾選嗎？（負責人與備註會保留）')) return;
+  S.done={}; S.sub={}; save(); render();
+};
+document.getElementById('exportBtn').onclick=function(){
+  var blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  var d=new Date(); a.download='婚禮清單進度-'+(d.getMonth()+1)+'-'+d.getDate()+'.json'; a.click();
+};
+var fi=document.getElementById('importFile');
+document.getElementById('importBtn').onclick=function(){fi.click()};
+fi.onchange=function(){
+  var f=fi.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{var p=JSON.parse(r.result); for(var k in S) S[k]=p[k]||{}; save(); render(); alert('已匯入進度');}
+    catch(e){alert('檔案格式不正確')}
+    fi.value='';
+  };
+  r.readAsText(f);
+};
+document.getElementById('themeBtn').onclick=function(){
+  var r=document.documentElement;
+  var dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+};
+
+var cd=days('2027-03-13'), cdEl=document.getElementById('countdown');
+cdEl.innerHTML = cd>0 ? '距離登記還有 <strong>'+cd+'</strong> 天' : cd===0 ? '就是今天！恭喜 💍' : '新婚快樂！';
+render();
+</script>
+</body>
+</html>
