@@ -559,7 +559,7 @@ const CONFIG = {
   thanksAbsent: "雖然這次不能到場，<br>但謝謝你認真填完問卷、送上滿滿的祝福 🥹<br>之後一定要找時間一起吃飯喔！",
   sign:    "— 新郎 & 新娘 敬邀 💌",
   // Google Apps Script 部署後的「網頁應用程式」網址（https://script.google.com/macros/s/.../exec）
-  sheetUrl: "",
+  sheetUrl: "https://script.google.com/macros/s/AKfycby_uzEXc2r9ytYSz5TIyOSCaC09dHT9EOw7ZKSNRiet3Rzh88h-8Z7wbuodYQaMnkaQ/exec",
 };
 
 /* ========================================================= */
@@ -607,7 +607,7 @@ updateProgress();
 
 /* ---------- 反應泡泡 ---------- */
 let bubbleTimer;
-function say(emoji, text, ms = 1500) {
+function say(emoji, text, ms = 2000) {
   const b = $("#bubble");
   b.innerHTML = `<span class="big-emo">${emoji}</span>${text}`;
   b.classList.add("show");
@@ -730,11 +730,11 @@ btnNo.addEventListener("click", e => {
     btnNo.classList.remove("tired");
     btnNo.classList.add("primary");
     btnNo.textContent = "好啦，是 💖";
-    say("🥹", "連「否」都被你感動到<br>自己變成「是」了！", 1900).then(() => answerQ1(true));
+    say("🥹", "連「否」都被你感動到<br>自己變成「是」了！", 2400).then(() => answerQ1(true));
     return;
   }
   // 萬一真的被按到（例如鍵盤 Enter）…還是算「是」
-  say("🫢", "居然被你按到了！<br>但系統自動幫你改成「是」了 😆", 1900).then(() => answerQ1(true));
+  say("🫢", "居然被你按到了！<br>但系統自動幫你改成「是」了 😆", 2400).then(() => answerQ1(true));
 });
 
 $("#btnYes").addEventListener("click", () => answerQ1(false));
