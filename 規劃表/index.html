@@ -35,6 +35,8 @@ h1{font-size:28px;margin:4px 0 12px}
 .date b{color:var(--accent)} .date span{color:var(--muted);font-size:14px;margin-left:6px}
 .countdown{color:var(--muted);margin-top:10px}
 .countdown strong{color:var(--accent);font-size:20px}
+.sync{display:inline-block;margin-top:8px;font:inherit;font-size:13px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:2px 12px;cursor:pointer}
+.sync.err{color:var(--bad);border-color:var(--bad)}
 
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center;cursor:pointer}
@@ -105,6 +107,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:16px}
       <div class="date"><b>2027/3/14（日）</b><span>家宴</span></div>
     </div>
     <div class="countdown" id="countdown"></div>
+    <button class="sync" id="syncSt" hidden></button>
   </header>
 
   <div class="stats">
@@ -139,9 +142,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:16px}
     <button class="chip" id="importBtn">匯入進度</button>
     <button class="chip" id="resetBtn">清除全部勾選</button>
     <button class="chip" id="themeBtn">切換深淺色</button>
+    <button class="chip" id="syncBtn" hidden>同步設定</button>
+    <button class="chip" id="linkBtn" hidden>複製同步連結</button>
     <input type="file" id="importFile" accept=".json" hidden>
   </div>
-  <footer>勾選紀錄只存在你自己的瀏覽器裡。要跟另一半同步，可以先「匯出進度」，再把檔案傳給對方「匯入」。</footer>
+  <footer id="foot">勾選紀錄只存在你自己的瀏覽器裡。要跟另一半同步，可以先「匯出進度」，再把檔案傳給對方「匯入」。</footer>
 </div>
 
 <script>
@@ -220,7 +225,90 @@ var STAGES=[
 var KEY='wedding-checklist-2027-v2';
 var S={done:{},sub:{},owner:{},note:{}};
 try{var raw=localStorage.getItem(KEY); if(raw){var p=JSON.parse(raw); for(var k in S) if(p[k]) S[k]=p[k];}}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} saveSync(); schedulePush();}
+/* 改 S 一律走 put()，才會記進待同步；val 為 null = 清除 */
+function put(type,id,val){
+  if(val==null) delete S[type][id]; else S[type][id]=val;
+  Y.pending[type+'.'+id]=val==null?null:val;
+}
+
+/* ===== 多人同步：Apps Script + Google Sheet（設定見 SETUP.md） ===== */
+var SYNC_URL='https://script.google.com/macros/s/AKfycbzfqHpgJbPcJPT1TSIfr1l9NLDgXK9GBTQeq192FJu4epSTtWgq4-sLeywdROt-2YuJCg/exec';   // 部署好的網頁應用程式網址 https://script.google.com/macros/s/.../exec
+var SK=KEY+'-sync', Y={key:'',rev:0,pending:{}};
+var badKey=false, pushing=false, pulling=false, pushT=0, lastOk=0, syncErr='', needRender=false;
+try{var ry=JSON.parse(localStorage.getItem(SK)); if(ry) for(var k in Y) if(ry[k]!=null) Y[k]=ry[k];}catch(e){}
+(function(){ // 同步連結 ?key=… 帶進來的密碼，記下後從網址拿掉
+  var m=location.search.match(/[?&]key=([^&#]+)/); if(!m) return;
+  setKey(decodeURIComponent(m[1]));
+  try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+})();
+function saveSync(){try{localStorage.setItem(SK,JSON.stringify(Y))}catch(e){}}
+function setKey(k){ if(k===Y.key) return; Y.key=k; Y.rev=0; badKey=false; saveSync(); }
+function syncOn(){return !!(SYNC_URL&&Y.key&&!badKey);}
+
+function schedulePush(){ if(!syncOn()) return; clearTimeout(pushT); pushT=setTimeout(push,700); }
+function push(){
+  if(!syncOn()||pushing||!Object.keys(Y.pending).length) return;
+  pushing=true; var sent=JSON.parse(JSON.stringify(Y.pending)); showSync();
+  fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:Y.key,changes:sent})})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      pushing=false; if(!syncResult(d)) return;
+      // 送出期間又改過的欄位留著下次送
+      for(var k in sent) if(JSON.stringify(Y.pending[k])===JSON.stringify(sent[k])) delete Y.pending[k];
+      saveSync(); showSync(); if(Object.keys(Y.pending).length) schedulePush();
+    })
+    .catch(function(){pushing=false; syncErr='連不上，稍後自動重試'; showSync();});
+}
+function pull(){
+  if(!syncOn()||pulling||document.hidden) return;
+  pulling=true;
+  fetch(SYNC_URL+'?key='+encodeURIComponent(Y.key)+'&since='+Y.rev)
+    .then(function(r){return r.json()})
+    .then(function(d){
+      pulling=false; if(!syncResult(d)) return;
+      var changed=false, seen={}, first=!Y.rev;
+      d.changes.forEach(function(c){
+        seen[c.k]=1;
+        if(c.k in Y.pending) return; // 本機還沒送出的改動優先
+        var i=c.k.indexOf('.'), t=c.k.slice(0,i), id=c.k.slice(i+1);
+        if(!S[t]||JSON.stringify(S[t][id])===JSON.stringify(c.v==null?undefined:c.v)) return;
+        if(c.v==null) delete S[t][id]; else S[t][id]=c.v;
+        changed=true;
+      });
+      // 第一次連上：把雲端沒有的本機紀錄補上去
+      if(first) for(var t in S) for(var id in S[t]) if(!seen[t+'.'+id]) Y.pending[t+'.'+id]=S[t][id];
+      Y.rev=d.rev;
+      try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+      saveSync(); showSync();
+      if(changed) safeRender();
+      push();
+    })
+    .catch(function(){pulling=false; syncErr='連不上，稍後自動重試'; showSync();});
+}
+function syncResult(d){
+  if(d&&d.ok){syncErr=''; lastOk=Date.now(); return true;}
+  if(d&&d.error==='bad key'){badKey=true; syncErr='同步密碼不對，點這裡重新輸入';}
+  else syncErr='同步失敗，稍後自動重試';
+  showSync(); return false;
+}
+function safeRender(){ // 正在打備註或選負責人時先不重畫，離開欄位再畫（見 focusout）
+  var a=document.activeElement;
+  if(a&&box.contains(a)&&(a.tagName==='TEXTAREA'||a.tagName==='SELECT')) needRender=true; else render();
+}
+function showSync(){
+  if(!SYNC_URL) return;
+  var el=document.getElementById('syncSt'), n=Object.keys(Y.pending).length;
+  el.hidden=false; el.classList.toggle('err',!!syncErr||!Y.key);
+  el.textContent=!Y.key?'🔒 輸入同步密碼，就能跟另一半即時同步'
+    : syncErr?'⚠️ '+syncErr+(n?'（'+n+' 項尚未上傳）':'')
+    : pushing||n?'🔄 同步中…'
+    : lastOk?'☁️ 已同步・其他人改的內容會自動出現':'🔄 連線中…';
+}
+function askKey(){
+  var k=prompt('輸入同步密碼（Google 試算表選單「💍 籌備清單同步 → 顯示同步密碼」可以看到）\n留空 = 停用同步，只存在這台裝置',Y.key);
+  if(k==null) return; setKey(k.trim()); showSync(); pull();
+}
 
 var filter='all', ownerF='', query='', openSet={};
 var today=new Date(); today.setHours(0,0,0,0);
@@ -298,23 +386,25 @@ box.addEventListener('change',function(e){
   var el=e.target, itemEl=el.closest('.item'); if(!itemEl) return;
   var it=find(itemEl.dataset.id);
   if(el.classList.contains('ck')){
-    S.done[it.id]=el.checked;
-    (it.sub||[]).forEach(function(_,i){S.sub[it.id+'_'+i]=el.checked});
+    put('done',it.id,el.checked);
+    (it.sub||[]).forEach(function(_,i){put('sub',it.id+'_'+i,el.checked)});
   }else if(el.classList.contains('sk')){
-    S.sub[it.id+'_'+el.dataset.i]=el.checked;
-    S.done[it.id]=subDone(it)===it.sub.length;
+    put('sub',it.id+'_'+el.dataset.i,el.checked);
+    put('done',it.id,subDone(it)===it.sub.length);
     openSet[it.id]=true;
   }else if(el.classList.contains('owner')){
-    S.owner[it.id]=el.value;
+    put('owner',it.id,el.value);
   }else return;
   save(); render();
 });
 box.addEventListener('input',function(e){
   if(!e.target.classList.contains('nt')) return;
   var id=e.target.closest('.item').dataset.id;
-  S.note[id]=e.target.value; save();
+  put('note',id,e.target.value); save();
 });
-box.addEventListener('focusout',function(e){ if(e.target.classList.contains('nt')) render(); });
+box.addEventListener('focusout',function(e){
+  if(e.target.classList.contains('nt')||needRender){needRender=false; render();}
+});
 box.addEventListener('click',function(e){
   if(!e.target.closest('.main')&&!e.target.classList.contains('arrow')) return;
   var itemEl=e.target.closest('.item'); var id=itemEl.dataset.id;
@@ -341,7 +431,8 @@ document.getElementById('expandBtn').onclick=function(){
 document.getElementById('printBtn').onclick=function(){window.print()};
 document.getElementById('resetBtn').onclick=function(){
   if(!confirm('確定要清除所有勾選嗎？（負責人與備註會保留）')) return;
-  S.done={}; S.sub={}; save(); render();
+  ['done','sub'].forEach(function(t){for(var id in S[t]) put(t,id,null)});
+  save(); render();
 };
 document.getElementById('exportBtn').onclick=function(){
   var blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
@@ -354,7 +445,15 @@ fi.onchange=function(){
   var f=fi.files[0]; if(!f) return;
   var r=new FileReader();
   r.onload=function(){
-    try{var p=JSON.parse(r.result); for(var k in S) S[k]=p[k]||{}; save(); render(); alert('已匯入進度');}
+    try{
+      var p=JSON.parse(r.result);
+      for(var t in S){
+        var np=p[t]||{};
+        for(var id in S[t]) if(!(id in np)) put(t,id,null);
+        for(var nid in np) put(t,nid,np[nid]);
+      }
+      save(); render(); alert('已匯入進度');
+    }
     catch(e){alert('檔案格式不正確')}
     fi.value='';
   };
@@ -369,6 +468,24 @@ document.getElementById('themeBtn').onclick=function(){
 var cd=days('2027-03-13'), cdEl=document.getElementById('countdown');
 cdEl.innerHTML = cd>0 ? '距離登記還有 <strong>'+cd+'</strong> 天' : cd===0 ? '就是今天！恭喜 💍' : '新婚快樂！';
 render();
+
+if(SYNC_URL){
+  document.getElementById('foot').textContent='勾選、負責人、備註會自動存到雲端（Google 試算表），有同步密碼的人在其他瀏覽器上幾秒內就會看到。';
+  var sb=document.getElementById('syncBtn'), lb=document.getElementById('linkBtn');
+  sb.hidden=lb.hidden=false;
+  sb.onclick=document.getElementById('syncSt').onclick=askKey;
+  lb.onclick=function(){
+    if(!Y.key) return askKey();
+    var url=location.origin+location.pathname+'?key='+encodeURIComponent(Y.key);
+    var fallback=function(){prompt('複製這個連結傳給另一半（打開就會自動同步）：',url)};
+    if(navigator.clipboard) navigator.clipboard.writeText(url).then(function(){alert('已複製同步連結，傳給另一半打開就能同步')},fallback);
+    else fallback();
+  };
+  showSync(); pull();
+  setInterval(pull,5000);
+  document.addEventListener('visibilitychange',pull);
+  window.addEventListener('online',function(){pull(); push();});
+}
 </script>
 </body>
 </html>
