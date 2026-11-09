@@ -237,11 +237,16 @@ var SYNC_URL='https://script.google.com/macros/s/AKfycbzfqHpgJbPcJPT1TSIfr1l9NLD
 var SK=KEY+'-sync', Y={key:'',rev:0,pending:{}};
 var badKey=false, pushing=false, pulling=false, pushT=0, lastOk=0, syncErr='', needRender=false;
 try{var ry=JSON.parse(localStorage.getItem(SK)); if(ry) for(var k in Y) if(ry[k]!=null) Y[k]=ry[k];}catch(e){}
-(function(){ // 同步連結 ?key=… 帶進來的密碼，記下後從網址拿掉
-  var m=location.search.match(/[?&]key=([^&#]+)/); if(!m) return;
-  setKey(decodeURIComponent(m[1]));
-  try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+(function(){ // 同步連結 ?key=… 帶進來的密碼記下來
+  var m=location.search.match(/[?&]key=([^&#]+)/);
+  if(m) setKey(decodeURIComponent(m[1]));
+  keyInUrl();
 })();
+// 網址一直帶著 ?key=：「加到主畫面」存的是當下網址，而主畫面 App 的儲存空間跟瀏覽器是分開的（iPhone），
+// 網址沒帶密碼的話，從主畫面打開就會變成沒同步的版本
+function keyInUrl(){
+  try{history.replaceState(null,'',location.pathname+(Y.key?'?key='+encodeURIComponent(Y.key):'')+location.hash)}catch(e){}
+}
 function saveSync(){try{localStorage.setItem(SK,JSON.stringify(Y))}catch(e){}}
 function setKey(k){ if(k===Y.key) return; Y.key=k; Y.rev=0; badKey=false; saveSync(); }
 function syncOn(){return !!(SYNC_URL&&Y.key&&!badKey);}
@@ -307,7 +312,7 @@ function showSync(){
 }
 function askKey(){
   var k=prompt('輸入同步密碼（Google 試算表選單「💍 籌備清單同步 → 顯示同步密碼」可以看到）\n留空 = 停用同步，只存在這台裝置',Y.key);
-  if(k==null) return; setKey(k.trim()); showSync(); pull();
+  if(k==null) return; setKey(k.trim()); keyInUrl(); showSync(); pull();
 }
 
 var filter='all', ownerF='', query='', openSet={};
