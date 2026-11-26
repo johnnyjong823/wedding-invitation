@@ -1,2 +1,4 @@
 .omc/
 __pycache__/
+# 婚紗照選擇器是獨立 repo（wedding-photo-picker）
+婚紗照選擇器/
