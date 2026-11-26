@@ -8,6 +8,7 @@
 <meta property="og:title" content="婚禮意願調查表 💌">
 <meta property="og:description" content="只有三題，填完有驚喜！">
 <meta property="og:type" content="website">
+<meta property="og:image" content="photos/02.jpg">
 <meta name="theme-color" content="#ff8fb1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -297,6 +298,7 @@
   .details .lab { font-size: 13px; color: var(--ink-soft); }
   .details .val { font-size: 17px; font-weight: 700; line-height: 1.45; word-break: break-word; }
   .details a { color: var(--pink-600); }
+  .details .row[hidden] { display: none; }
 
   .thanks {
     background: var(--pink-50);
@@ -317,6 +319,156 @@
   footer { position: relative; z-index: 1; text-align: center; font-size: 12px; color: var(--ink-soft); padding: 0 16px 20px; }
 
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 90; }
+
+  /* ============ 拍立得照片 ============ */
+  .polaroid {
+    position: relative; margin: 0;
+    background: #fff; padding: 8px 8px 30px;
+    border: 3px solid var(--ink); border-radius: 8px;
+    box-shadow: 0 6px 0 var(--ink);
+    rotate: var(--r, 0deg);
+    transition: rotate .25s, scale .25s;
+  }
+  .polaroid img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 3px; background: var(--pink-100); }
+  .polaroid figcaption {
+    position: absolute; left: 4px; right: 4px; bottom: 4px;
+    font-size: 14px; font-weight: 700; text-align: center; line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .polaroid::before {
+    content: ""; position: absolute; top: -12px; left: 50%; z-index: 2;
+    width: 58px; height: 20px; translate: -50% 0; rotate: -5deg;
+    background: rgba(255, 233, 166, .9); border: 2px solid var(--ink); border-radius: 3px;
+  }
+  button.polaroid { font: inherit; color: inherit; cursor: zoom-in; width: 100%; }
+  button.polaroid:hover { rotate: 0deg; scale: 1.04; z-index: 3; }
+  button.polaroid:focus-visible { outline: 4px dashed var(--pink-500); outline-offset: 4px; }
+
+  /* 開場：三張疊在一起 */
+  .intro-pics { position: relative; height: 250px; max-width: 400px; margin: 18px auto 0; }
+  .intro-pics .polaroid { position: absolute; width: 44%; animation: dangle 3.2s ease-in-out infinite; }
+  .intro-pics .polaroid:nth-child(1) { left: 2%;  top: 26px; --r: -9deg; }
+  .intro-pics .polaroid:nth-child(2) { left: 28%; top: 0;    --r: 3deg; z-index: 2; animation-delay: -.8s; }
+  .intro-pics .polaroid:nth-child(3) { right: 2%; top: 34px; --r: 10deg; animation-delay: -1.6s; }
+  .intro-pics figcaption { font-size: 12px; }
+  @keyframes dangle { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+
+  .party-chip {
+    display: inline-block; margin: 14px 0 0;
+    background: var(--lemon); border: 3px solid var(--ink); border-radius: 14px;
+    padding: 6px 14px; font-weight: 700; font-size: 15px; line-height: 1.5;
+    transform: rotate(1.5deg);
+  }
+
+  /* 邀請函頁：照片牆 */
+  .photo-wall { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 16px; margin: 26px 4px 22px; }
+  .photo-wall .polaroid:nth-child(4n+1) { --r: -4deg; }
+  .photo-wall .polaroid:nth-child(4n+2) { --r: 3deg; }
+  .photo-wall .polaroid:nth-child(4n+3) { --r: 2deg; }
+  .photo-wall .polaroid:nth-child(4n+4) { --r: -3deg; }
+  .wall-title { margin: 22px 0 0; font-size: 22px; }
+
+  /* 電腦版：卡片兩側掛照片 */
+  .side-pics { display: none; }
+  @media (min-width: 1180px) {
+    .side-pics {
+      display: block; position: fixed; top: 0; bottom: 0; z-index: 0;
+      width: calc((100vw - 640px) / 2);
+    }
+    .side-pics.l { left: 0; }
+    .side-pics.r { right: 0; }
+    .side-pics.r .polaroid { left: 54%; }
+    .side-pics .polaroid {
+      position: absolute; left: 46%; width: clamp(150px, 13vw, 210px);
+      transform: translateX(-50%); animation: dangle 4s ease-in-out infinite;
+    }
+    .side-pics .polaroid:nth-child(1) { top: 7%;  --r: -7deg; }
+    .side-pics .polaroid:nth-child(2) { top: 38%; --r: 5deg; margin-left: -30px; animation-delay: -1.3s; }
+    .side-pics .polaroid:nth-child(3) { top: 68%; --r: -4deg; margin-left: 10px; animation-delay: -2.6s; }
+    .side-pics.r .polaroid:nth-child(1) { --r: 6deg; }
+    .side-pics.r .polaroid:nth-child(2) { --r: -5deg; margin-left: 30px; }
+    .side-pics.r .polaroid:nth-child(3) { --r: 8deg; margin-left: -10px; }
+    body.wide-mode .side-pics { display: none; }
+  }
+
+  /* ============ 邀請函頁：資訊、地圖、交通 ============ */
+  .party-note {
+    margin: 4px 0 6px; padding: 12px 16px;
+    background: var(--lemon); border: 3px solid var(--ink); border-radius: 18px;
+    box-shadow: 0 5px 0 var(--ink);
+    font-size: 17px; font-weight: 700; line-height: 1.6;
+    transform: rotate(-1deg);
+  }
+  .party-note small { display: block; font-weight: 500; font-size: 14px; color: var(--ink-soft); }
+  .details .val small { display: block; font-size: 14px; font-weight: 500; color: var(--ink-soft); }
+  .details .val a { font-size: 14px; }
+  .fmap { margin: 0 0 16px; border: 3px solid var(--ink); border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 3; background: var(--pink-50); }
+  .fmap iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .transport {
+    text-align: left; background: #fff;
+    border: 3px dashed var(--pink-300); border-radius: 20px;
+    padding: 14px 16px; margin: 0 0 16px;
+  }
+  .transport h3 { margin: 4px 0 10px; font-size: 19px; }
+  .transport h3 + p { margin: -6px 0 10px; font-size: 14px; color: var(--ink-soft); }
+  .transport ul { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 8px; }
+  .transport li { background: var(--pink-50); border-radius: 14px; padding: 10px 12px; line-height: 1.55; font-size: 15px; }
+  .transport li b { font-size: 16px; }
+  .transport li .fee { display: block; color: var(--pink-600); font-weight: 700; }
+  .transport li a { font-size: 13px; color: var(--pink-600); }
+  .transport .btn { font-size: 15px; padding: 8px 14px; display: inline-block; margin-bottom: 14px; }
+  .transport .tiny { font-size: 12px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+  .line { display: inline-block; padding: 0 6px; border-radius: 6px; color: #fff; font-size: 12px; font-weight: 700; vertical-align: 1px; }
+  .line.R { background: #e3002c; } .line.G { background: #008659; } .line.B { background: #0070bd; }
+
+  /* 電腦版：邀請函頁卡片變寬、兩欄 */
+  .card { transition: max-width .45s ease; }
+  @media (min-width: 900px) {
+    .card.wide { max-width: 1040px; }
+    .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; text-align: left; }
+    .inv-grid .details { margin-top: 0; }
+    .photo-wall { grid-template-columns: repeat(4, 1fr); gap: 28px 22px; }
+    .card.wide .thanks, .card.wide .party-note { max-width: 720px; margin-left: auto; margin-right: auto; }
+  }
+
+  /* 開場：已填過的人直接看資訊 */
+  .intro-actions { margin-top: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .welcome-back {
+    margin: 0; padding: 10px 16px;
+    background: var(--mint); border: 3px solid var(--ink); border-radius: 16px;
+    font-weight: 700; font-size: 16px; line-height: 1.6; transform: rotate(-1deg);
+  }
+  .welcome-back[hidden] { display: none; }
+  .welcome-back small { display: block; font-weight: 500; font-size: 14px; color: var(--ink-soft); }
+  .link-btn {
+    font: inherit; font-size: 15px; font-weight: 700; color: var(--pink-600);
+    background: none; border: 0; padding: 6px 4px; cursor: pointer;
+    text-decoration: underline; text-decoration-style: wavy; text-underline-offset: 5px;
+  }
+  .link-btn:focus-visible { outline: 3px dashed var(--pink-500); outline-offset: 3px; border-radius: 6px; }
+
+  /* 邀請函頁：LINE 官方帳號 */
+  .line-oa {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center;
+    margin: 0 auto 18px; max-width: 720px; padding: 14px 16px;
+    background: #e9fbef; border: 3px solid var(--ink); border-radius: 20px;
+    box-shadow: 0 5px 0 var(--ink); text-align: left;
+  }
+  .line-oa[hidden] { display: none; }
+  .line-oa-txt { flex: 1 1 220px; line-height: 1.5; }
+  .line-oa-txt b { font-size: 17px; }
+  .line-oa-txt small { display: block; font-size: 14px; color: var(--ink-soft); }
+  .btn.line-btn { background: #06c755; color: #fff; font-size: 17px; padding: 10px 20px; white-space: nowrap; }
+  .btn.line-btn:hover { background: #05b04b; }
+
+  /* 看大圖 */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 120;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+    background: rgba(60, 20, 35, .88); cursor: zoom-out;
+  }
+  .lightbox[hidden] { display: none; }
+  .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border: 6px solid #fff; border-radius: 10px; }
 
   @media (max-width: 600px) {
     main { padding: 18px 12px 28px; }
@@ -340,6 +492,8 @@
 <body>
 
 <div class="floaties" aria-hidden="true" id="floaties"></div>
+<div class="side-pics l" id="sideL" aria-hidden="true"></div>
+<div class="side-pics r" id="sideR" aria-hidden="true"></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
 
 <main>
@@ -352,11 +506,12 @@
       <span class="tag">極度重要的問卷</span>
       <h1>婚禮意願調查表</h1>
       <p class="sub">只有三題，<br>請「誠實」作答（但答案其實早就決定了 😏）</p>
-      <svg class="mascot bounce" viewBox="0 0 240 200" role="img" aria-label="卡通新郎新娘">
-        <use href="#couple"/>
-      </svg>
-      <div style="margin-top:18px">
+      <div class="intro-pics" id="introPics" aria-label="我們的婚紗照"></div>
+      <p class="party-chip">🎉 不是正式婚宴，是朋友同樂聚會！</p>
+      <div class="intro-actions" id="introActions">
+        <p class="welcome-back" id="welcomeBack" hidden></p>
         <button class="btn primary big" id="btnStart">開始作答 ✍️</button>
+        <button class="link-btn" id="btnInfo">已經填過了？直接看聚會資訊 📍</button>
       </div>
     </section>
 
@@ -404,7 +559,7 @@
     <section class="screen" id="s-form">
       <span class="tag">最後一步 ✍️</span>
       <h2>留下你的大名吧！</h2>
-      <p class="sub">我們要準備位子跟好吃的給你 🍰</p>
+      <p class="sub">我們要準備位子跟好吃的給你 🍰<br>（不收紅包、不用穿正式，人來就好！）</p>
       <form id="rsvpForm" class="rsvp" novalidate>
         <label class="field">
           <span class="lab">你的名字 <em>*</em></span>
@@ -468,25 +623,55 @@
 
     <!-- ========== 邀請函 ========== -->
     <section class="screen invite" id="s-invite">
-      <span class="tag">問卷完成 🎉</span>
+      <span class="tag" id="vTag">問卷完成 🎉</span>
       <svg class="mascot" viewBox="0 0 240 200" aria-hidden="true" style="width:160px"><use href="#couple"/></svg>
       <div class="names"><span id="vGroom"></span><span class="amp">&amp;</span><span id="vBride"></span></div>
-      <div class="ribbon">WEDDING INVITATION</div>
-      <p class="sub" style="font-size:16px;color:var(--ink)">我們要結婚了！<br>誠摯邀請您一同見證我們的幸福 💕</p>
+      <div class="ribbon">WEDDING PARTY</div>
+      <p class="sub" style="font-size:16px;color:var(--ink)">我們要結婚了！<br>朋友場，輕鬆吃、盡情聊、一起熱鬧一下 💕</p>
 
-      <div class="details">
-        <div class="row"><span class="ico">📅</span><div><div class="lab">日期</div><div class="val" id="vDate"></div></div></div>
-        <div class="row"><span class="ico">⏰</span><div><div class="lab">時間</div><div class="val" id="vTime"></div></div></div>
-        <div class="row"><span class="ico">🏰</span><div><div class="lab">地點</div><div class="val" id="vVenue"></div></div></div>
-        <div class="row"><span class="ico">📍</span><div><div class="lab">地址</div><div class="val" id="vAddress"></div></div></div>
+      <div class="party-note" id="vPartyNote"></div>
+
+      <div class="inv-grid">
+        <div>
+          <div class="details">
+            <div class="row"><span class="ico">📅</span><div><div class="lab">日期</div><div class="val" id="vDate"></div></div></div>
+            <div class="row"><span class="ico">⏰</span><div><div class="lab">時間</div><div class="val" id="vTime"></div></div></div>
+            <div class="row"><span class="ico">🍸</span><div><div class="lab">地點</div><div class="val" id="vVenue"></div></div></div>
+            <div class="row" id="rowAddress"><span class="ico">📍</span><div><div class="lab">地址</div><div class="val"><span id="vAddress"></span><br><a id="lnkAddr" target="_blank" rel="noopener">在 Google 地圖開啟 ›</a></div></div></div>
+            <div class="row"><span class="ico">🧧</span><div><div class="lab">禮金</div><div class="val" id="vGift"></div></div></div>
+            <div class="row"><span class="ico">👕</span><div><div class="lab">服裝</div><div class="val" id="vDress"></div></div></div>
+          </div>
+          <div class="fmap"><iframe id="mapFrame" title="聚會地點地圖" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+        </div>
+
+        <div class="transport">
+          <h3>🚇 搭捷運（最推薦！）</h3>
+          <ul id="mrtList"></ul>
+          <a class="btn" id="btnWalk" target="_blank" rel="noopener">🧭 從中山站走過去怎麼走</a>
+          <h3>🚗 開車的話停這裡</h3>
+          <p id="vParkLead"></p>
+          <ul id="parkList"></ul>
+          <p class="tiny" id="vParkNote"></p>
+        </div>
       </div>
+
+      <h2 class="wall-title">📸 偷偷放幾張婚紗照</h2>
+      <div class="photo-wall" id="photoWall"></div>
 
       <div class="thanks" id="vThanks"></div>
 
       <ul class="my-answers" id="myAnswers"></ul>
 
+      <div class="line-oa" id="lineOa" hidden>
+        <div class="line-oa-txt">
+          <b>💬 加入我們的 LINE 官方帳號</b>
+          <small>之後直接在 LINE 就能查時間、地點、交通，聚會前還會提醒你喔！</small>
+        </div>
+        <a class="btn line-btn" id="btnLine" target="_blank" rel="noopener">＋ 加入好友</a>
+      </div>
+
       <div class="actions">
-        <a class="btn primary" id="btnMap" target="_blank" rel="noopener">🗺️ 查看地圖</a>
+        <a class="btn primary" id="btnMap" target="_blank" rel="noopener">🗺️ 導航過去</a>
         <button class="btn" id="btnAgain">🔁 再填一次</button>
       </div>
       <p class="sign" id="vSign"></p>
@@ -497,6 +682,7 @@
 <footer>Made with 💗</footer>
 
 <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
+<div class="lightbox" id="lightbox" hidden><img id="lightboxImg" alt="婚紗照"></div>
 
 <!-- ========== 卡通新郎新娘 SVG（共用） ========== -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -548,23 +734,85 @@
  * ✏️ 婚禮資訊：只要改這裡就好
  * ========================================================= */
 const CONFIG = {
-  groom:   "新郎",                         // 新郎名字
-  bride:   "新娘",                         // 新娘名字
-  date:    "2027 年 ○ 月 ○ 日（星期○）",
-  time:    "中午 12:00 入席・12:30 開席",
-  venue:   "○○ 飯店 ○ 樓 ○○ 廳",
-  address: "○○市○○區○○路 ○ 號",
-  mapUrl:  "",                             // Google 地圖連結；留空會自動用地址搜尋
+  groom:   "鍾武丞",
+  bride:   "蔡嘉敏",
+  date:    "2027 年 3 月 21 日（星期日）",
+  time:    "晚上 6:00",
+  venue:   "Vagus 餐酒館 Lounge",
+  venueNote: "天津大酒店 B1",
+  address: "台北市中山區天津街 57 號 B1",   // 留空這一列就不顯示
+  mapQuery: "天津大酒店 台北市中山區天津街57號",
+  partyNote: "🥳 先說好：這不是正式的婚宴！<small>沒有冗長致詞、不用穿正式、不收紅包，就是一群朋友一起吃吃喝喝、聊天同樂的聚會～</small>",
+  gift:    "人來就好，不收禮金 🙅",
+  dress:   "輕鬆休閒，穿得舒服就好 👟",
+  mapUrl:  "",                             // Google 地圖連結；留空會自動用場地名稱＋地址搜尋
   thanks:  "謝謝你這麼認真（？）地填完這份問卷！<br>你的每一份祝福，我們都滿滿收到了 🥹<br>期待那天與你相見，一起吃好吃的、一起留下美好回憶！",
   thanksAbsent: "雖然這次不能到場，<br>但謝謝你認真填完問卷、送上滿滿的祝福 🥹<br>之後一定要找時間一起吃飯喔！",
-  sign:    "— 新郎 & 新娘 敬邀 💌",
+  thanksVisit: "還沒填過問卷的話，記得按下面「去填問卷」<br>讓我們知道你會來，才好幫你準備位子跟好吃的 🍰",  // 沒填過、直接跳來看資訊的人
+  // LINE 官方帳號「加入好友」網址，例如 https://line.me/R/ti/p/@123abcde 或 https://lin.ee/xxxxxxx；留空就不顯示
+  lineAddUrl: "",
+  sign:    "— 武丞 & 嘉敏 敬邀 💌",
+
+  // 交通（費率是 2026/11 網路上查到的資料，可能調整）
+  mrt: [
+    { line: ["R", "G"], station: "中山站", text: "淡水信義線、松山新店線，步行約 5 分鐘（2 號出口比較近）" },
+    { line: ["B"], station: "善導寺站", text: "板南線，步行約 10 分鐘" },
+    { line: [], station: "台北車站", text: "步行約 10～15 分鐘" },
+  ],
+  walkFrom: "捷運中山站",
+  parkLead: "天津大酒店本身沒有停車場，附近停車位也不好找，能搭捷運最好！",
+  parking: [
+    { name: "長安大樓停車場", where: "長安東路一段 18 號", fee: "第 1 小時 70 元，之後每半小時 35 元（08–22 時最高 350 元）", map: "長安大樓停車場 台北市中山區長安東路一段18號" },
+    { name: "林森公園地下停車場", where: "林森北路、南京東路口一帶", fee: "平日每小時 30 元，假日費率不同", map: "林森公園地下停車場" },
+    { name: "長安東路臨時平面停車場（一）", where: "長安東路一段 56 巷", fee: "每小時 40 元", map: "長安東路臨時平面停車場(一)" },
+    { name: "天津街路邊停車格", where: "門口這條街", fee: "每小時 30 元，但格子很少，看運氣 🍀", map: "" },
+  ],
+  parkNote: "※ 停車費率是網路上查到的資料，可能會調整，請以現場公告為準。要喝酒的話就別開車啦 🍻🚕",
+
+  // 婚紗照（photos/ 資料夾），cap 是拍立得下面的字
+  photos: [
+    { src: "photos/01.jpg", cap: "乾杯啦！🍻" },
+    { src: "photos/02.jpg", cap: "浪漫屋報到 😎" },
+    { src: "photos/03.jpg", cap: "舞王舞后 💃" },
+    { src: "photos/04.jpg", cap: "認真思考人生中" },
+    { src: "photos/05.jpg", cap: "麥克風給我！🎤" },
+    { src: "photos/06.jpg", cap: "啾 💋" },
+    { src: "photos/07.jpg", cap: "今晚不醉不歸" },
+    { src: "photos/08.jpg", cap: "西裝也很會 📸" },
+  ],
   // Google Apps Script 部署後的「網頁應用程式」網址（https://script.google.com/macros/s/.../exec）
+  event:   "朋友宴",                        // 跟家宴共用同一個 Apps Script，用這個欄位分開統計
   sheetUrl: "https://script.google.com/macros/s/AKfycby_uzEXc2r9ytYSz5TIyOSCaC09dHT9EOw7ZKSNRiet3Rzh88h-8Z7wbuodYQaMnkaQ/exec",
 };
 
 /* ========================================================= */
 const $ = (s, el = document) => el.querySelector(s);
 const answers = {};
+
+/* ---------- 拍立得照片 ---------- */
+function polaroid(p, clickable) {
+  const el = document.createElement(clickable ? "button" : "figure");
+  el.className = "polaroid";
+  if (clickable) { el.type = "button"; el.setAttribute("aria-label", "放大照片：" + p.cap); }
+  el.innerHTML = `<img alt="" loading="lazy" decoding="async"><figcaption></figcaption>`;
+  el.querySelector("img").src = p.src;
+  el.querySelector("figcaption").textContent = p.cap;
+  if (clickable) el.addEventListener("click", () => {
+    $("#lightboxImg").src = p.src;
+    $("#lightbox").hidden = false;
+  });
+  return el;
+}
+$("#lightbox").addEventListener("click", () => ($("#lightbox").hidden = true));
+addEventListener("keydown", e => { if (e.key === "Escape") $("#lightbox").hidden = true; });
+(function placePhotos() {
+  const P = CONFIG.photos;
+  if (!P.length) { $("#introPics").remove(); return; }
+  [1, 5, 3].forEach(i => P[i] && $("#introPics").appendChild(polaroid(P[i])));
+  [0, 2, 4].forEach(i => P[i] && $("#sideL").appendChild(polaroid(P[i])));
+  [5, 7, 6].forEach(i => P[i] && $("#sideR").appendChild(polaroid(P[i])));
+  P.forEach(p => $("#photoWall").appendChild(polaroid(p, true)));
+})();
 
 /* ---------- 背景飄浮愛心 ---------- */
 (function makeFloaties() {
@@ -585,9 +833,16 @@ const answers = {};
 
 /* ---------- 畫面切換 ---------- */
 let current = "s-intro";
-function go(id) {
+function go(id, instant) {
   const from = document.getElementById(current);
   const to = document.getElementById(id);
+  if (instant) {
+    from.classList.remove("active");
+    to.classList.add("active");
+    current = id;
+    updateProgress();
+    return;
+  }
   from.classList.remove("active");
   from.classList.add("leaving");
   setTimeout(() => {
@@ -618,6 +873,32 @@ function say(emoji, text, ms = 2000) {
 }
 
 $("#btnStart").addEventListener("click", () => go("s-q1"));
+
+/* ---------- 已經填過：首頁直接跳去看聚會資訊 ----------
+ * 填完會記在這支手機的瀏覽器裡；但換手機、或 LINE 內建瀏覽器跟 Chrome 是分開記的，
+ * 所以「直接看聚會資訊」不管有沒有記到都會顯示。網址加 #info 也會直接打開資訊頁（給 LINE 官方帳號用）。 */
+const SAVE_KEY = "wedding-friend-rsvp";
+function loadSaved() {
+  try { const d = JSON.parse(localStorage.getItem(SAVE_KEY)); return d && d.name ? d : null; } catch { return null; }
+}
+function saveDone(d) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch {} }
+
+(function setupReturning() {
+  const saved = loadSaved();
+  if (!saved) return;
+  const wb = $("#welcomeBack");
+  wb.textContent = `嗨 ${saved.name}！你已經填過囉 ✅`;
+  wb.insertAdjacentHTML("beforeend", "<small>想再看時間、地點、交通，點下面就好</small>");
+  wb.hidden = false;
+  // 主角換成「看聚會資訊」，「開始作答」退成次要
+  const info = $("#btnInfo"), start = $("#btnStart");
+  info.className = "btn primary big";
+  info.textContent = "📍 看聚會資訊";
+  start.className = "btn";
+  start.textContent = "重新填一次 ✍️";
+  start.before(info);
+})();
+$("#btnInfo").addEventListener("click", () => showInvite(false));
 
 /* =========================================================
  * Q1：「否」按鈕會逃跑
@@ -814,30 +1095,67 @@ document.querySelectorAll("#s-q3 .options .btn").forEach(btn => {
 /* =========================================================
  * 邀請函
  * ========================================================= */
-function showInvite() {
+// fresh：剛送出問卷；否則是從首頁或 #info 直接跳來看資訊
+function showInvite(fresh, instant) {
+  const info = fresh ? answers : (loadSaved() || {});
+  $("#vTag").textContent = fresh ? "問卷完成 🎉" : "聚會資訊 📍";
   $("#vGroom").textContent = CONFIG.groom;
   $("#vBride").textContent = CONFIG.bride;
   $("#vDate").textContent = CONFIG.date;
   $("#vTime").textContent = CONFIG.time;
   $("#vVenue").textContent = CONFIG.venue;
+  if (CONFIG.venueNote) {
+    const sm = document.createElement("small");
+    sm.textContent = CONFIG.venueNote;
+    $("#vVenue").appendChild(sm);
+  }
   $("#vAddress").textContent = CONFIG.address;
-  $("#vThanks").innerHTML = answers.attend === "無法出席" ? CONFIG.thanksAbsent : CONFIG.thanks;
+  $("#rowAddress").hidden = !CONFIG.address;
+  $("#vPartyNote").innerHTML = CONFIG.partyNote;
+  const mapQ = CONFIG.mapQuery || (CONFIG.venue + " " + CONFIG.address).trim();
+  const mapSearch = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+  $("#lnkAddr").href = mapSearch(mapQ);
+  $("#mapFrame").src = "https://maps.google.com/maps?hl=zh-TW&z=16&output=embed&q=" + encodeURIComponent(mapQ);
+  $("#btnWalk").href = "https://www.google.com/maps/dir/?api=1&travelmode=walking&origin=" +
+    encodeURIComponent(CONFIG.walkFrom) + "&destination=" + encodeURIComponent(mapQ);
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  $("#mrtList").innerHTML = CONFIG.mrt.map(m =>
+    `<li>${m.line.map(l => `<span class="line ${l}">${{ R: "紅", G: "綠", B: "藍" }[l]}</span> `).join("")}<b>${esc(m.station)}</b><br>${esc(m.text)}</li>`).join("");
+  $("#vParkLead").textContent = CONFIG.parkLead;
+  $("#parkList").innerHTML = CONFIG.parking.map(p =>
+    `<li><b>${esc(p.name)}</b>（${esc(p.where)}）<span class="fee">💰 ${esc(p.fee)}</span>` +
+    (p.map ? `<a target="_blank" rel="noopener" href="${mapSearch(p.map)}">Google 地圖 ›</a>` : "") + `</li>`).join("");
+  $("#vParkNote").textContent = CONFIG.parkNote;
+  $("#vGift").textContent = CONFIG.gift;
+  $("#vDress").textContent = CONFIG.dress;
+  $("#vThanks").innerHTML = !info.attend ? CONFIG.thanksVisit
+    : info.attend === "無法出席" ? CONFIG.thanksAbsent : CONFIG.thanks;
   $("#vSign").textContent = CONFIG.sign;
-  $("#btnMap").href = CONFIG.mapUrl ||
-    "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.venue + " " + CONFIG.address);
+  $("#btnMap").href = CONFIG.mapUrl || "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(mapQ);
+  $("#btnAgain").textContent = fresh || info.name ? "🔁 重新填寫" : "✍️ 去填問卷";
 
   const list = $("#myAnswers");
   list.innerHTML = "";
-  [["出席意願", answers.q1], ["新郎配得上嗎", answers.q2], ["當天計畫", answers.q3]].forEach(([k, v]) => {
+  list.hidden = !info.q1;
+  if (info.q1) [["出席意願", info.q1], ["新郎配得上嗎", info.q2], ["當天計畫", info.q3]].forEach(([k, v]) => {
     const li = document.createElement("li");
     li.innerHTML = `📝 ${k}：<b></b>`;
     li.querySelector("b").textContent = v;
     list.appendChild(li);
   });
 
-  go("s-invite");
-  setTimeout(() => burst(180), 350);
+  go("s-invite", instant);
+  const widen = () => { card.classList.add("wide"); document.body.classList.add("wide-mode"); };
+  if (instant) widen(); else setTimeout(widen, 330);
+  setTimeout(() => burst(fresh ? 180 : 60), 350);
 }
+
+if (CONFIG.lineAddUrl) {
+  $("#btnLine").href = CONFIG.lineAddUrl;
+  $("#lineOa").hidden = false;
+}
+// 網址帶 #info（例如 LINE 官方帳號給的連結）→ 直接打開聚會資訊
+if (location.hash === "#info") showInvite(false, true);
 
 /* =========================================================
  * 報名表 → Google Sheet
@@ -876,6 +1194,7 @@ form.addEventListener("submit", async e => {
   const attending = fd.get("attend") === "出席";
   answers.attend = fd.get("attend");
   const data = {
+    event: CONFIG.event,
     name,
     side: fd.get("side"),
     attend: fd.get("attend"),
@@ -903,7 +1222,8 @@ form.addEventListener("submit", async e => {
     } else {
       console.warn("CONFIG.sheetUrl 尚未設定，資料沒有送出：", data);
     }
-    showInvite();
+    saveDone({ name, attend: data.attend, q1: data.q1, q2: data.q2, q3: data.q3, at: Date.now() });
+    showInvite(true);
   } catch (err) {
     console.error(err);
     $("#formErr").textContent = "糟糕，送出失敗了 😵 請檢查網路後再按一次";
@@ -912,7 +1232,8 @@ form.addEventListener("submit", async e => {
   }
 });
 
-$("#btnAgain").addEventListener("click", () => location.reload());
+// 回首頁（去掉 #info，否則重新整理又會跳回資訊頁）
+$("#btnAgain").addEventListener("click", () => { location.href = location.pathname + location.search; });
 
 /* =========================================================
  * 彩帶

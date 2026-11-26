@@ -22,11 +22,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      # 邀請函放根目錄、規劃表放 /schedule/；line官方 只存原始碼不上線
+      # 朋友宴邀請函放根目錄、家宴邀請函放 /family/、規劃表放 /schedule/；line官方 只存原始碼不上線
       - name: Assemble site
         run: |
-          mkdir -p _site/schedule
+          mkdir -p _site/schedule _site/family
           cp "意願調查表 邀請函/index.html" _site/
+          cp -r "意願調查表 邀請函/photos" _site/
+          cp 家宴邀請函/index.html _site/family/
+          cp -r 家宴邀請函/photos _site/family/
           cp 規劃表/index.html _site/schedule/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
