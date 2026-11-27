@@ -66,8 +66,11 @@
     display: flex; align-items: center; justify-content: center; flex-direction: column;
     color: var(--gold); text-align: center;
   }
+  /* 婚紗照不給長按/右鍵存圖：點擊穿過圖片落在外框上，就不會出現「儲存圖片」選單 */
+  .ph { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  .ph img { pointer-events: none; -webkit-user-drag: none; }
   .ph img { width: 100%; height: 100%; object-fit: cover; }
-  .ph.has-img { border: 0; cursor: zoom-in; background: #eee4d2; }
+  .ph.has-img { border: 0; background: #eee4d2; }
   .ph .ph-xi { font-size: 34px; line-height: 1; opacity: .55; }
   .ph .ph-txt { font-size: 14px; letter-spacing: 2px; margin-top: 8px; }
   .cover { padding: 26px 26px 0; }
@@ -221,22 +224,6 @@
 
   footer { text-align: center; color: var(--ink-soft); font-size: 14px; margin-top: 20px; letter-spacing: 2px; }
 
-  /* ---------- 看大圖 ---------- */
-  .lightbox {
-    position: fixed; inset: 0; z-index: 50;
-    background: rgba(25, 15, 10, .92);
-    display: flex; align-items: center; justify-content: center;
-    padding: 16px; cursor: zoom-out;
-  }
-  .lightbox[hidden] { display: none; }
-  .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 3px; }
-  .lightbox .close {
-    position: absolute; top: 12px; right: 12px;
-    width: 52px; height: 52px; border-radius: 50%;
-    border: 1px solid rgba(255,255,255,.6); background: rgba(0,0,0,.35); color: #fff;
-    font-size: 28px; cursor: pointer;
-  }
-
   /* ---------- 電腦版 ---------- */
   @media (min-width: 960px) {
     body { font-size: 19px; }
@@ -317,7 +304,6 @@
     <section class="gallery">
       <h2>婚紗留影</h2>
       <div class="gallery-grid" id="gallery"></div>
-      <p class="hint" id="galleryHint">點照片可放大觀看</p>
     </section>
 
     <!-- 回函 -->
@@ -394,11 +380,6 @@
 
   </article>
   <footer id="vFooter"></footer>
-</div>
-
-<div class="lightbox" id="lightbox" hidden>
-  <img id="lightboxImg" alt="">
-  <button type="button" class="close" aria-label="關閉">×</button>
 </div>
 
 <script>
@@ -516,11 +497,6 @@ function photoBox(src, isCover) {
     img.loading = isCover ? "eager" : "lazy";
     img.decoding = "async";
     box.appendChild(img);
-    box.tabIndex = 0;
-    box.setAttribute("role", "button");
-    box.setAttribute("aria-label", "放大照片");
-    box.addEventListener("click", () => openLightbox(src));
-    box.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(src); } });
   } else {
     box.innerHTML = `<div class="ph-xi">囍</div><div class="ph-txt">婚紗照預留位置</div>`;
   }
@@ -539,13 +515,7 @@ function photoBox(src, isCover) {
   // 張數是奇數時，最後一張橫跨兩欄，版面才不會缺一角
   if (rest.length % 2 === 1) grid.lastElementChild.classList.add("wide");
   if (!rest.length) $(".gallery").remove();
-  if (!photos.length) $("#galleryHint").remove();
 }
-
-const lb = $("#lightbox");
-function openLightbox(src) { $("#lightboxImg").src = src; lb.hidden = false; }
-lb.addEventListener("click", () => { lb.hidden = true; });
-addEventListener("keydown", (e) => { if (e.key === "Escape") lb.hidden = true; });
 
 /* ---------- 回函：人數 ---------- */
 const nums = { count: 1, veg: 0, kids: 0 };

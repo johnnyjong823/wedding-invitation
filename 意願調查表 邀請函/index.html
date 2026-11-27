@@ -329,6 +329,9 @@
     rotate: var(--r, 0deg);
     transition: rotate .25s, scale .25s;
   }
+  /* 婚紗照不給長按/右鍵存圖：點擊穿過圖片落在外框上，就不會出現「儲存圖片」選單 */
+  .polaroid { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  .polaroid img { pointer-events: none; -webkit-user-drag: none; }
   .polaroid img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 3px; background: var(--pink-100); }
   .polaroid figcaption {
     position: absolute; left: 4px; right: 4px; bottom: 4px;
@@ -340,9 +343,6 @@
     width: 58px; height: 20px; translate: -50% 0; rotate: -5deg;
     background: rgba(255, 233, 166, .9); border: 2px solid var(--ink); border-radius: 3px;
   }
-  button.polaroid { font: inherit; color: inherit; cursor: zoom-in; width: 100%; }
-  button.polaroid:hover { rotate: 0deg; scale: 1.04; z-index: 3; }
-  button.polaroid:focus-visible { outline: 4px dashed var(--pink-500); outline-offset: 4px; }
 
   /* 開場：三張疊在一起 */
   .intro-pics { position: relative; height: 250px; max-width: 400px; margin: 18px auto 0; }
@@ -460,15 +460,6 @@
   .line-oa-txt small { display: block; font-size: 14px; color: var(--ink-soft); }
   .btn.line-btn { background: #06c755; color: #fff; font-size: 17px; padding: 10px 20px; white-space: nowrap; }
   .btn.line-btn:hover { background: #05b04b; }
-
-  /* 看大圖 */
-  .lightbox {
-    position: fixed; inset: 0; z-index: 120;
-    display: flex; align-items: center; justify-content: center; padding: 16px;
-    background: rgba(60, 20, 35, .88); cursor: zoom-out;
-  }
-  .lightbox[hidden] { display: none; }
-  .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border: 6px solid #fff; border-radius: 10px; }
 
   @media (max-width: 600px) {
     main { padding: 18px 12px 28px; }
@@ -682,7 +673,6 @@
 <footer>Made with 💗</footer>
 
 <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
-<div class="lightbox" id="lightbox" hidden><img id="lightboxImg" alt="婚紗照"></div>
 
 <!-- ========== 卡通新郎新娘 SVG（共用） ========== -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -790,28 +780,21 @@ const $ = (s, el = document) => el.querySelector(s);
 const answers = {};
 
 /* ---------- 拍立得照片 ---------- */
-function polaroid(p, clickable) {
-  const el = document.createElement(clickable ? "button" : "figure");
+function polaroid(p) {
+  const el = document.createElement("figure");
   el.className = "polaroid";
-  if (clickable) { el.type = "button"; el.setAttribute("aria-label", "放大照片：" + p.cap); }
   el.innerHTML = `<img alt="" loading="lazy" decoding="async"><figcaption></figcaption>`;
   el.querySelector("img").src = p.src;
   el.querySelector("figcaption").textContent = p.cap;
-  if (clickable) el.addEventListener("click", () => {
-    $("#lightboxImg").src = p.src;
-    $("#lightbox").hidden = false;
-  });
   return el;
 }
-$("#lightbox").addEventListener("click", () => ($("#lightbox").hidden = true));
-addEventListener("keydown", e => { if (e.key === "Escape") $("#lightbox").hidden = true; });
 (function placePhotos() {
   const P = CONFIG.photos;
   if (!P.length) { $("#introPics").remove(); return; }
   [1, 5, 3].forEach(i => P[i] && $("#introPics").appendChild(polaroid(P[i])));
   [0, 2, 4].forEach(i => P[i] && $("#sideL").appendChild(polaroid(P[i])));
   [5, 7, 6].forEach(i => P[i] && $("#sideR").appendChild(polaroid(P[i])));
-  P.forEach(p => $("#photoWall").appendChild(polaroid(p, true)));
+  P.forEach(p => $("#photoWall").appendChild(polaroid(p)));
 })();
 
 /* ---------- 背景飄浮愛心 ---------- */
